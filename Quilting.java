@@ -2,7 +2,7 @@
 public class Quilting {
 	// Parameters
 
-	% btile
+	// btile
 	% bsize = 16;
 	% num_blocks_out = 10;
 	% ovsize = floor(bsize/6);
