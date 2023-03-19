@@ -1,6 +1,6 @@
 
 public class Quilting {
-	% Parameters
+	// Parameters
 
 	% btile
 	% bsize = 16;
