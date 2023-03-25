@@ -1,4 +1,4 @@
-
+/*
 public class Quilting {
 	// Parameters
 
@@ -137,10 +137,11 @@ public class Quilting {
 	     boundary = repmat(boundary, 1, 1, 3);
 	     out(si:ei, sj:ej, :) = out(si:ei, sj:ej, :) .* (boundary == 0) + ...
 	        im(im_r:im_r+bsize-1, im_c:im_c+bsize-1, :) .* (boundary == 1);
-	     */
-	  end
+	     
+//	  end
 	  
-	end
+//	end
 
-	imshow(uint8(out));
-}
+//	imshow(uint8(out));
+//}
+*/

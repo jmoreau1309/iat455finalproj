@@ -36,16 +36,16 @@ class Week9 extends Frame{  //controlling class
 		// Get an image from the specified file in the current directory on the
 		// local hard disk.
 		try {
-			src1 = ImageIO.read(new File("backdoor.jpg")); 
-			statueImg = ImageIO.read(new File("statue.jpg"));
-			backgroundImg = ImageIO.read(new File("background.jpg")); 
-			statueMatte = ImageIO.read(new File("statue_mat0.jpg")); 
-			edge_mask = ImageIO.read(new File("edge_mask.jpg")); 
+			src1 = ImageIO.read(new File("images/backdoor.jpg")); 
+			statueImg = ImageIO.read(new File("images/statue.jpg"));
+			backgroundImg = ImageIO.read(new File("images/background.jpg")); 
+			statueMatte = ImageIO.read(new File("images/statue_mat0.jpg")); 
+			edge_mask = ImageIO.read(new File("images/edge_mask.jpg")); 
 
 		} catch (Exception e) {
 			System.out.println("Cannot load the provided image");
 		}
-		this.setTitle("Week 9 workshop");
+		this.setTitle("IAT 455 Final Project");
 		this.setVisible(true);
 
 		width = src1.getWidth();
