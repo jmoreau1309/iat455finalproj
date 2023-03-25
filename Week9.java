@@ -21,15 +21,24 @@ class Week9 extends Frame{  //controlling class
 	BufferedImage backgroundImg; 
 	BufferedImage statueMatte; 
 	BufferedImage edge_mask;
+	BufferedImage jesse; 
+	BufferedImage synth;
 	
 	BufferedImage blurred; 
 	BufferedImage colorCorrected; 
 	BufferedImage coloredEdges;
 	BufferedImage shadedStatue;
-	BufferedImage finalResult; 
+	BufferedImage finalResult;
+	BufferedImage tex_corr;  
+	BufferedImage tar_corr;
 
 	int width, width1; 
 	int height, height1; 
+	//Transfer variables
+	int bsize = 20;
+	double ovsize = Math.floor(bsize/6);
+	double tolerance = 0.1;
+	double alpha = 0.6;
 
 	public Week9() {
 		// constructor
@@ -41,6 +50,8 @@ class Week9 extends Frame{  //controlling class
 			backgroundImg = ImageIO.read(new File("images/background.jpg")); 
 			statueMatte = ImageIO.read(new File("images/statue_mat0.jpg")); 
 			edge_mask = ImageIO.read(new File("images/edge_mask.jpg")); 
+			jesse = ImageIO.read(new File("images/JesseS5.jpg")); 
+			synth = ImageIO.read(new File("images/synth.jpg")); 
 
 		} catch (Exception e) {
 			System.out.println("Cannot load the provided image");
@@ -70,6 +81,8 @@ class Week9 extends Frame{  //controlling class
 		BufferedImage edgelessStatue =  combineImages(invert(edge_mask),statueImg,Operations.multiply); //TODO: replace the statueImg with proper method call
 		shadedStatue = combineImages(edgelessStatue, coloredEdges, Operations.add); //TODO: replace the statueImg with proper method call
 		
+		tar_corr = suppressToBlack(jesse);
+		tex_corr = suppressToBlack(synth);
 		finalResult = over(shadedStatue,statueMatte,backgroundImg); //TODO: replace the statueImg with proper method call
 
 		//Anonymous inner-class listener to terminate program
@@ -265,24 +278,24 @@ public BufferedImage combineImages(BufferedImage src1, BufferedImage src2, Opera
 public BufferedImage suppressToBlack(BufferedImage src) {
 	BufferedImage result = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
 
-	int rgb, r, g, b;
-	for (int i = 0; i < width; i++) {
-		for (int j = 0; j < height; j++) {
+	int rgb, r, g, b, a, avg;
+	for (int i = 0; i < src.getWidth(); i++) {
+		for (int j = 0; j < src.getHeight(); j++) {
+			
+			rgb = src.getRGB(i,j);
 
-			rgb = src.getRGB(i, j);
-			r = getRed(rgb);
-			g = getGreen(rgb);
-			b = getBlue(rgb);
+	        a = (rgb>>24)&0xff;
+	        r = (rgb>>16)&0xff;
+	        g = (rgb>>8)&0xff;
+	        b = rgb&0xff;
 
-			if (b > g) {
-				b = g;
-			}
+	        //calculate average
+	        avg = (r+g+b)/3;
 
-			r = clip(r);
-			g = clip(g);
-			b = clip(b);
-			rgb = new Color(r, g, b).getRGB();
-			result.setRGB(i, j, rgb);
+	        //replace RGB value with avg
+	        rgb = (a<<24) | (avg<<16) | (avg<<8) | avg;
+
+	        result.setRGB(i, j, rgb);
 		}
 	}
 
@@ -417,7 +430,7 @@ public BufferedImage improveMatte(BufferedImage src) {
 	    g.drawImage(statueMatte,150+w*3, 50+h1+70,w1, h1,this);
 	    g.drawImage(edge_mask, 150+w*3+w1+40, 50+h1+70, w1, h1,this);
 
-	    g.drawImage(blurred,30,50+h+180,w1, h1,this);
+	    g.drawImage(jesse,30,50+h+180,w1, h1,this);
 	    g.drawString("Blurred background", 30, 50+h+170); 
 	    
 	    g.drawImage(colorCorrected,30+w1+30,50+h+180,w1, h1,this);
