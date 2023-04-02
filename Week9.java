@@ -39,6 +39,7 @@ class Week9 extends Frame{  //controlling class
 	double ovsize = Math.floor(bsize/6);
 	double tolerance = 0.1;
 	double alpha = 0.6;
+	double si,ei,sj,ej;
 
 	public Week9() {
 		// constructor
