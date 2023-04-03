@@ -1,5 +1,8 @@
 import java.awt.image.BufferedImage;
 
+//Based on Image Quilting for Texture Synthesis and Transfer
+//by Alice Wang and Jordan Mecom
+//http://jmecom.github.io/projects/computational-photography/texture-synthesis/
 public class Transfer {
 	
 	// Parameters
@@ -34,13 +37,7 @@ public class Transfer {
 	
 	for (int i = 1; i < sizeh; i++) {    // loops over rows
 	  for (int j = 1; j < sizew ; j++) {   // loops over cols
-	    
-			    // If i == 1 then we're at the top row, so check error above
-			    //    j == 1           ""     left col, so check error left
-			    //
-			    // If we're in the case where i, j >= 2
-			    //   then si:ei will get the the strip above the block we're considering
-			    //   and  sj:ej will get the strip to the left of the block
+
 		  	
 		  		//Start Row
 			    si = (i-1)*bsize - (i-1)*ovsize + 1;
@@ -51,9 +48,6 @@ public class Transfer {
 			    //End Column
 			    ej = sj + bsize - 1;
 			    
-			    //     for k = 1:N
-			    // Set alpha
-			    //       alpha = 0.8*((i-1)/(N-1)) + 0.1;
 			    
 			    // Error for each potential match
 			    errors = new double[(int) (tex_h - bsize)][(int) (tex_w - bsize)];
