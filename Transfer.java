@@ -52,6 +52,8 @@ public class Transfer {
 			    // Error for each potential match
 			    errors = new double[(int) (tex_h - bsize)][(int) (tex_w - bsize)];
 			    
+			    
+			    //First block is random
 			    if (i == 1 && j == 1) {
 			        int min = 0; // Minimum value of range
 			        int max = (int) tex_h-bsize; // Maximum value of range
