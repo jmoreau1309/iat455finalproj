@@ -12,7 +12,6 @@ public class Calc_Errors_2 {
 	double si,ei,sj,ej;
 	int [][] out_slice;
 	int [][] block_slice;
-	int [] test;
 	String casee;
 	int bsize;
 	int ovsize;	
@@ -33,7 +32,6 @@ public class Calc_Errors_2 {
 		tex_h = tex.getHeight();
 		tex_w = tex.getWidth();
 		
-		int [] test = new int[tex_w];
 		
 		int out_slice_h = this.out_slice[0].length;
 		int out_slice_w = this.out_slice.length;
@@ -108,6 +106,8 @@ public class Calc_Errors_2 {
 		
 		
 	}
+	
+	
 
 	protected int getRed(int pixel) {
 		return (pixel >>> 16) & 0xFF;
