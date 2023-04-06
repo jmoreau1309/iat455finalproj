@@ -1,3 +1,4 @@
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 //Based on Image Quilting for Texture Synthesis and Transfer
@@ -24,6 +25,8 @@ public class Transfer {
 	double[][] errors;
 	int [][] out;
 	int [][] outslice;
+	int [][] dp;
+	int errorsnum;
 	// N = 3;
 
 
@@ -117,6 +120,71 @@ public class Transfer {
 	  		}		
 
 
+	}
+	
+	
+	public void dpCut(int [][] a, int [][] b, String casee) {
+		
+		int cj;
+		int ci;
+		int r1,g1,b1,r2,g2,b2,rgb1,rgb2;
+		rgb1 = 0;
+		rgb2 = 0;
+		//This is done incorrectly and need to actually figure out what sum of arrays is doing in matlab
+        for (ci = (int) si; ci < ei ; ci++) {
+        	for (cj = (int) sj; cj < ej ; cj++) {
+
+        		r1 = getRed((a[ci][cj]));
+        		g1 = getGreen(a[ci][cj]);
+        		b1 = getBlue(a[ci][cj]);
+        		
+        		rgb1 = r1+g1+b1+rgb1;
+        		
+        		r2 = getRed((b[ci][cj]));
+        		g2 = getGreen(b[ci][cj]);
+        		b2 = getBlue(b[ci][cj]);
+        		
+        		rgb2 = r2+g2+b2+rgb2;
+        	}
+        }
+        errorsnum = (int) Math.pow( (double) (rgb2 -  rgb1), (double)2);
+        
+        if (casee.equals("hori")) {
+        	//Confused by this line, adding it to be consistent with code from matlab but will review later
+        	errorsnum = errorsnum;
+        }
+        int error_h = errorsnum;
+        int error_w = errorsnum;
+        
+        dp = new int [(int) error_h] [(int) error_w];
+        
+        //end of incorrect part
+
+	      //Cycles through the block size
+	      for (ci = (int) si; ci < ei ; ci++) {
+	        	
+	        for (cj = (int) sj; cj < (sj+ovsize-1) ; cj++) {
+	        			//outslice[ci][cj] = out[ci][cj];      	
+	        	}
+	        	
+	       }
+	    	
+       
+        
+        
+	}
+	
+	
+	protected int getRed(int pixel) {
+		return (pixel >>> 16) & 0xFF;
+	}
+
+	protected int getGreen(int pixel) {
+		return (pixel >>> 8) & 0xFF;
+	}
+
+	protected int getBlue(int pixel) {
+		return pixel & 0xFF;
 	}
 }
 
