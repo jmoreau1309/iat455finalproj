@@ -66,10 +66,17 @@ class Week9 extends Frame{  //controlling class
 			jesse = ImageIO.read(new File("images/JesseS5.jpg")); 
 			synth = ImageIO.read(new File("images/synth.jpg")); 
 			
+			/*
 			carImage = ImageIO.read(new File("images/JesseS5.jpg"));
 
 			texture = ImageIO.read(new File("images/synth.jpg"));
 			target = ImageIO.read(new File("images/JesseS5.jpg"));
+			
+			*/
+			carImage = ImageIO.read(new File("images/JesseS5.jpg"));
+
+			texture = ImageIO.read(new File("images/t13.png"));
+			target = ImageIO.read(new File("images/target.jpg"));
 
 
 		} catch (Exception e) {
@@ -110,6 +117,7 @@ class Week9 extends Frame{  //controlling class
 
 	//=======================================================//
 	
+	//Randomly finds small patch
 	public BufferedImage smallPatch(BufferedImage src) {
 		int w = src.getWidth() / percent;
 		int h = src.getHeight() / percent;
@@ -786,9 +794,14 @@ class Week9 extends Frame{  //controlling class
 		g.setFont(f1);
 
 		g.drawString("1.Texture image", 25, 40);
-
+		
+		//Quilt1's drawing
 		g.drawString("1.a. Simple quilt", 25 * 2 + texture.getWidth(), 40);
+		
+		//Quilt 2's drawing
 		g.drawString("1.b. Overlap quilt", 25 * 3 + texture.getWidth() + quilt.getWidth(), 40);
+		
+		//Quilt 3's Drawing
 		g.drawString("1.c. Quilt with minimum error boundary cut", 25 * 4 + texture.getWidth() + quilt.getWidth() * 2, 40);
 
 		g.drawString("2. Target image", 25, 50 * 2 + quilt.getHeight() - 10);
@@ -801,12 +814,14 @@ class Week9 extends Frame{  //controlling class
 		g.drawImage(target, 25, 50 * 2 + quilt.getHeight(), target.getWidth(), target.getHeight(), this);
 
 		g.drawImage(quilt1, 25 * 2 + texture.getWidth(), 50, quilt1.getWidth(), quilt1.getHeight(), this);
+		
 		try {
 
 			g.drawImage(quilt2, 25 * 3 + texture.getWidth() + quilt.getWidth(), 50, quilt.getWidth(), quilt2.getHeight(), this);
 		} catch (Exception e) {
 			System.out.println("Cannot draw quilt 2");
 		}
+		
 		try {
 
 			g.drawImage(quilt3, 25 * 4 + texture.getWidth() + quilt.getWidth() * 2, 50, quilt.getWidth(), quilt3.getHeight(), this);
