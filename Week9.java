@@ -39,7 +39,7 @@ class Week9 extends Frame{  //controlling class
 	BufferedImage quilt1, quilt2, quilt3;
 	BufferedImage target_gray,texture_gray;
 	//Original was 2
-	int percent = 10;
+	int percent = 3;
 	//Original was 4
 	int overlapPercent = 4;
 	
