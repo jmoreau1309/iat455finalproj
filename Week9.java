@@ -36,7 +36,7 @@ class Week9 extends Frame{  //controlling class
 	int bsize = 20;
 	double ovsize = Math.floor(bsize/6);
 	double tolerance = 0.1;
-	double alpha = 0.6;
+
 	double si,ei,sj,ej;
 	
 	BufferedImage carImage; // reference to an Image object
@@ -52,6 +52,8 @@ class Week9 extends Frame{  //controlling class
 	int percent = 3;
 	//Original was 4
 	int overlapPercent = 4;
+	
+	double alpha = 0.6;
 
 	BufferedImage myOptImage, myOptImage1;
 
@@ -78,7 +80,7 @@ class Week9 extends Frame{  //controlling class
 			carImage = ImageIO.read(new File("images/JesseS5.jpg"));
 
 			texture = ImageIO.read(new File("images/t13.png"));
-			target = ImageIO.read(new File("images/Cerone_425.png"));
+			target = ImageIO.read(new File("images/Cerone_White_44.png"));
 
 
 		} catch (Exception e) {
@@ -101,6 +103,7 @@ class Week9 extends Frame{  //controlling class
 		quilt = new BufferedImage(texture.getWidth() * 2, texture.getWidth() * 2, texture.getType());
 		//quilt1 = quilt1(texture, quilt, false);
 		//quilt2 = quilt1(texture, quilt, true);
+		quilt2 = quilt3(texture, target, target_gray, true);
 		//quilt3 = quilt(texture, quilt);
 		
 		myOptImage = quilt2(texture, target_gray, texture_gray);
@@ -210,7 +213,7 @@ class Week9 extends Frame{  //controlling class
 				if (i == 0 && j == 0) {
 					smlBlockA = smallPatch2(input);
 				} else {
-					smlBlockA = minimumErrorBoundary1(result, returnB1(result, input, greymap, i, j), i, j);
+					smlBlockA = minimumErrorBoundary1(result, returnB1(result, input, greymap, i, j), greymap, i, j);
 				}
 
 				for (int a = 0; a < smlW && i + a < result.getWidth(); a++) {
@@ -224,7 +227,7 @@ class Week9 extends Frame{  //controlling class
 		return result;
 	}
 	
-	public double[] findBlockB1(BufferedImage output, BufferedImage blockB, BufferedImage greyMap, int x, int y) {
+	public double findBlockB1(BufferedImage output, BufferedImage blockB, BufferedImage greyMap, int x, int y) {
 
 		//TODO have greymap actually be used
 		int widthA = blockB.getWidth();
@@ -238,7 +241,7 @@ class Week9 extends Frame{  //controlling class
 		//correspondence between source image cost
 		double corCost = 0;
 		
-		double[] twoCosts = new double [2];
+		//double[] twoCosts = new double [2];
 
 		if (y != 0) {
 			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
@@ -291,6 +294,7 @@ class Week9 extends Frame{  //controlling class
 					int blueB = getBlue(pixelB);
 					int greenB = getGreen(pixelB);
 					
+					//Texture Greymap
 					int pixelC = greyMap.getRGB(i, j);
 					int redC = getRed(pixelC);
 					int blueC = getBlue(pixelC);
@@ -312,9 +316,10 @@ class Week9 extends Frame{  //controlling class
 				}
 			}
 		}
-		twoCosts[0] = mycost;
-		twoCosts[1] = corCost;
-		return twoCosts;
+		//twoCosts[0] = mycost;
+		//twoCosts[1] = corCost;
+		double trueCost = ((mycost*alpha)+(corCost* (1-alpha)));
+		return trueCost;
 	}	
 	
 	public BufferedImage returnB1(BufferedImage output, BufferedImage input, BufferedImage greymap, int x, int y) {
@@ -322,19 +327,28 @@ class Week9 extends Frame{  //controlling class
 		//TODO have greymap actually be used
 		BufferedImage blockB = smallPatch2(input);
 		BufferedImage finalBlockB = blockB;
+		//double[] originCosts = findBlockB1(output, rgb2gray(blockB), greymap,x, y);
 		double originCost = findBlockB1(output, rgb2gray(blockB), greymap,x, y);
+		//double originColCost = originCosts[0];
+		//double originCorCost = 50.0;
+		//double originCorCost = originCosts[1];
 		for (int t = 0; t < 200; t++) {
 			blockB = smallPatch(input);
-			double iterativeCost = findBlockB1(output, rgb2gray(blockB), greymap, x, y);
+			//double[] iterativeCosts = findBlockB1(output, rgb2gray(blockB), greymap, x, y);		
+			double iterativeCost = findBlockB1(output, rgb2gray(blockB), greymap, x, y);	
+			//double iterativeColCost = iterativeCosts[0];
+			//double iterativeCorCost = iterativeCosts[1];
 			if (iterativeCost < originCost) {
+				//System.out.println("originColCost: "+ Double.toString(originColCost) + " iterativeColCost: "+ Double.toString(iterativeColCost)+ " originCorCost: "+ Double.toString(originCorCost) + " iterativeCorCost: "+ Double.toString(iterativeCorCost));
 				originCost = iterativeCost;
+				//originCorCost = iterativeCorCost;
 				finalBlockB = blockB;
 			}
 		}
 		return finalBlockB;
 	}
 
-	public BufferedImage minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, int x, int y) {
+	public BufferedImage minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, BufferedImage greyMap , int x, int y) {
 
 		BufferedImage cutB = new BufferedImage(blockB.getWidth(), blockB.getHeight(), blockB.getType());
 
@@ -349,6 +363,8 @@ class Week9 extends Frame{  //controlling class
 		int locationX = 0;
 
 		double[][] colorArray = new double[heightA][widthA];
+		//Correspondence array
+		double[][] corArray = new double[heightA][widthA];
 		System.out.println("HSB Code is running");
 		if (y != 0) {
 			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
@@ -365,14 +381,23 @@ class Week9 extends Frame{  //controlling class
 					int blueB = getBlue(pixelB);
 					int greenB = getGreen(pixelB);
 					
+					int pixelC = greyMap.getRGB(i, j);
+					int redC = getRed(pixelC);
+					int blueC = getBlue(pixelC);
+					int greenC = getGreen(pixelC);	
 					
 					float[] hsbA = new float[3];
-					float[] hsbB = new float[3];	
+					float[] hsbB = new float[3];
+					float[] hsbC = new float[3];					
 					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
-					Color.RGBtoHSB(redB, blueB, greenB, hsbB);				
+					Color.RGBtoHSB(redB, blueB, greenB, hsbB);
+					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
 					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
 					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					double corDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+					
 					colorArray[j][i] = colorDifference;
+					corArray[j][i] = corDifference;
 					//System.out.println("color value difference is "+ colorDifference);
 				}
 			}
@@ -392,15 +417,23 @@ class Week9 extends Frame{  //controlling class
 					int blueB = getBlue(pixelB);
 					int greenB = getGreen(pixelB);
 					
+					int pixelC = greyMap.getRGB(i, j);
+					int redC = getRed(pixelC);
+					int blueC = getBlue(pixelC);
+					int greenC = getGreen(pixelC);	
+					
 					float[] hsbA = new float[3];
-					float[] hsbB = new float[3];	
+					float[] hsbB = new float[3];
+					float[] hsbC = new float[3];
 					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
 					Color.RGBtoHSB(redB, blueB, greenB, hsbB);
-
+					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
 					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
 					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
-
+					double corDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+					
 					colorArray[j][i] = colorDifference;
+					corArray[j][i] = corDifference;
 				}
 			}
 		}
@@ -413,11 +446,13 @@ class Week9 extends Frame{  //controlling class
 				for (int t = 0; t < overlapW; t++) {
 					if (t == 0) {
 						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]);
+						corArray[t][s] += Math.min(corArray[t][s - 1], corArray[t + 1][s - 1]);
 					} else if (t == overlapW - 1) {
 						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t - 1][s - 1]);
+						corArray[t][s] += Math.min(corArray[t][s - 1], corArray[t - 1][s - 1]);
 					} else {
-						colorArray[t][s] += Math.min(Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]),
-								colorArray[t - 1][s - 1]);
+						colorArray[t][s] += Math.min(Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]),colorArray[t - 1][s - 1]);
+						corArray[t][s] += Math.min(Math.min(corArray[t][s - 1], corArray[t + 1][s - 1]),corArray[t - 1][s - 1]);
 					}
 
 				}
@@ -431,11 +466,13 @@ class Week9 extends Frame{  //controlling class
 
 					if (s == 0) {
 						colorArray[t][s] += Math.min(colorArray[t - 1][s], colorArray[t - 1][s + 1]);
+						corArray[t][s] += Math.min(corArray[t - 1][s], corArray[t - 1][s + 1]);
 					} else if (s == overlapW - 1) {
 						colorArray[t][s] += Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]);
+						corArray[t][s] += Math.min(corArray[t - 1][s - 1], corArray[t - 1][s]);
 					} else {
-						colorArray[t][s] += Math.min(Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]),
-								colorArray[t - 1][s + 1]);
+						colorArray[t][s] += Math.min(Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]),colorArray[t - 1][s + 1]);
+						corArray[t][s] += Math.min(Math.min(corArray[t - 1][s - 1], corArray[t - 1][s]),corArray[t - 1][s + 1]);
 					}
 
 				}
@@ -447,36 +484,44 @@ class Week9 extends Frame{  //controlling class
 		int[] locatY = new int[widthA];
 		if (y != 0) {
 			for (int k = widthA - 1; k > 0; k--) {
-				double minimum = 0;
+				double minimumCol = 0;
+				double minimumCor = 0;
 				if (k == widthA - 1) {
 					for (int u = 0; u < overlapW; u++) {
-						if (u == 0 || colorArray[k][u] < minimum) {
-							minimum = colorArray[k][u];
+						if (u == 0 || ((colorArray[k][u] < minimumCol) && (corArray[k][u] < minimumCor)) ) {
+							minimumCol = colorArray[k][u];
+							minimumCor = corArray[k][u];
 							locatY[k] = u;
 						}
 					}
 				}
 				if (locatY[k] == 0) {
-					double smalleast = 0;
+					double smalleastCol = 0;
+					double smalleastCor = 0;					
 					for (int q = 0; q < 2; q++) {
-						if (smalleast == 0 || colorArray[k - 1][q] < smalleast) {
-							smalleast = colorArray[k - 1][q];
+						if ((smalleastCol == 0 && smalleastCor == 0) || (colorArray[k - 1][q] < smalleastCol && corArray[k - 1][q] < smalleastCor) ) {
+							smalleastCol = colorArray[k - 1][q];
+							smalleastCor = corArray[k - 1][q];
 							locatY[k - 1] = q;
 						}
 					}
 				} else if (locatY[k] == overlapW - 1) {
-					double minum = 0;
+					double minumCol = 0;
+					double minumCor = 0;
 					for (int r = overlapW - 2; r < overlapW; r++) {
-						if (minum == 0 || colorArray[k - 1][r] < minum) {
-							minum = colorArray[k - 1][r];
+						if ((minumCol == 0 && minumCor == 0) || (colorArray[k - 1][r] < minumCol && corArray[k - 1][r] < minumCor)) {
+							minumCol = colorArray[k - 1][r];
+							minumCor = corArray[k - 1][r];
 							locatY[k - 1] = r;
 						}
 					}
 				} else {
-					double small = 0;
+					double smallCol = 0;
+					double smallCor = 0;
 					for (int d = locatY[k] - 1; d < locatY[k] + 2; d++) {
-						if (small == 0 || colorArray[k - 1][d] < small) {
-							small = colorArray[k - 1][d];
+						if ((smallCol == 0 && smallCor == 0) || (colorArray[k - 1][d] < smallCol && corArray[k - 1][d] < smallCor)) {
+							smallCol = colorArray[k - 1][d];
+							smallCor = corArray[k - 1][d];
 							locatY[k - 1] = d;
 						}
 					}
@@ -487,37 +532,45 @@ class Week9 extends Frame{  //controlling class
 		int[] locatX = new int[heightA];
 		if (x != 0) {
 			for (int k = heightA - 1; k > 0; k--) {
-				double minimum = 0;
+				double minimumCol = 0;
+				double minimumCor = 0;
 				if (k == heightA - 1) {
 					for (int u = 0; u < overlapW; u++) {
-						if (u == 0 || colorArray[k][u] < minimum) {
-							minimum = colorArray[k][u];
+						if (u == 0 || (colorArray[k][u] < minimumCol && corArray[k][u] < minimumCor)) {
+							minimumCol = colorArray[k][u];
+							minimumCor = corArray[k][u];
 							locatX[k] = u;
 						}
 					}
 				}
 
 				if (locatX[k] == 0) {
-					double smalleast = 0;
+					double smalleastCol = 0;
+					double smalleastCor = 0;
 					for (int q = 0; q < 2; q++) {
-						if (smalleast == 0 || colorArray[k - 1][q] < smalleast) {
-							smalleast = colorArray[k - 1][q];
+						if ((smalleastCol == 0 && smalleastCor == 0) || (colorArray[k - 1][q] < smalleastCol && corArray[k - 1][q] < smalleastCor)) {
+							smalleastCol = colorArray[k - 1][q];
+							smalleastCor = corArray[k - 1][q];
 							locatX[k - 1] = q;
 						}
 					}
 				} else if (locatX[k] == overlapW - 1) {
-					double minum = 0;
+					double minumCol = 0;
+					double minumCor = 0;
 					for (int r = overlapW - 2; r < overlapW; r++) {
-						if (minum == 0 || colorArray[k - 1][r] < minum) {
-							minum = colorArray[k - 1][r];
+						if ((minumCol == 0 && minumCor == 0) || (colorArray[k - 1][r] < minumCol && corArray[k - 1][r] < minumCor)) {
+							minumCol = colorArray[k - 1][r];
+							minumCor = corArray[k - 1][r];
 							locatX[k - 1] = r;
 						}
 					}
 				} else {
-					double small = 0;
+					double smallCol = 0;
+					double smallCor = 0;
 					for (int d = locatX[k] - 1; d < locatX[k] + 2; d++) {
-						if (small == 0 || colorArray[k - 1][d] < small) {
-							small = colorArray[k - 1][d];
+						if ((smallCol == 0 && smallCor == 0) || (colorArray[k - 1][d] < smallCol && corArray[k - 1][d] < smallCor)) {
+							smallCol = colorArray[k - 1][d];
+							smallCor = corArray[k - 1][d];
 							locatX[k - 1] = d;
 						}
 					}
@@ -548,14 +601,61 @@ class Week9 extends Frame{  //controlling class
 				}
 			}
 		}
-		
+		/*
 		for (int o = 0; o < colorArray.length; o++) {	
 			for (int b = 0; b < colorArray[o].length; b++) {
 				System.out.println("Height is "+ Integer.toString(o) + " and width is "+ Integer.toString(b)+ " color value difference is "+ Double.toString(colorArray[o][b]));
 			}
 		}
+		*/
 		return cutB;
 	}	
+	
+	
+	public BufferedImage quilt3(BufferedImage input, BufferedImage output, BufferedImage greyMap, Boolean overlap) {
+		int outW = output.getWidth();
+		int outH = output.getHeight();
+
+		int inpW = input.getWidth();
+		int inpH = input.getHeight();
+
+		int smlW = inpW / percent;
+		int smlH = inpH / percent;
+
+		int overlapW = 0;
+		int overlapH = 0;
+		if (overlap) {
+			overlapW = smlW / overlapPercent;
+			overlapH = smlH / overlapPercent;
+		}
+
+		BufferedImage smlBlockA = smallPatch(input);
+		BufferedImage result = new BufferedImage(outW, outH, output.getType());
+		for (int j = 0; j < result.getHeight(); j += (smlH - overlapH)) {
+			for (int i = 0; i < result.getWidth(); i += (smlW - overlapW)) {
+
+				if (overlap) {
+					if (i == 0 && j == 0) {
+						smlBlockA = smallPatch(input);
+					} else {
+						smlBlockA = returnB1(result, input, greyMap , i, j);
+					}
+				} else {
+					smlBlockA = smallPatch(input);
+				}
+
+				for (int a = 0; a < smlW && i + a < result.getWidth(); a++) {
+					for (int b = 0; b < smlH && j + b < result.getHeight(); b++) {
+						result.setRGB(i + a, j + b, smlBlockA.getRGB(a, b));
+					}
+				}
+
+			}
+		}
+		return result;
+	}
+	
+	
 	
 	public double findBlockB(BufferedImage output, BufferedImage blockB, int x, int y) {
 
@@ -833,6 +933,8 @@ class Week9 extends Frame{  //controlling class
 		return cutB;
 	}
 
+	
+	
 	public BufferedImage quilt1(BufferedImage input, BufferedImage output, Boolean overlap) {
 		int outW = output.getWidth();
 		int outH = output.getHeight();
@@ -945,14 +1047,14 @@ class Week9 extends Frame{  //controlling class
 		g.drawImage(target, 25, 50 * 2 + quilt.getHeight(), target.getWidth(), target.getHeight(), this);
 
 		//g.drawImage(quilt1, 25 * 2 + texture.getWidth(), 50, quilt1.getWidth(), quilt1.getHeight(), this);
-		/*
+		
 		try {
 
-			g.drawImage(quilt2, 25 * 3 + texture.getWidth() + quilt.getWidth(), 50, quilt.getWidth(), quilt2.getHeight(), this);
+			g.drawImage(quilt2, 25 * 3 + target.getWidth()*2, 50, quilt2.getWidth(), quilt2.getHeight(), this);
 		} catch (Exception e) {
 			System.out.println("Cannot draw quilt 2");
 		}
-		
+		/*
 		try {
 
 			g.drawImage(quilt3, 25 * 4 + texture.getWidth() + quilt.getWidth() * 2, 50, quilt.getWidth(), quilt3.getHeight(), this);
