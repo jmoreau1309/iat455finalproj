@@ -6,7 +6,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.File;
-import java.lang.String; 
+import java.lang.String;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -103,10 +104,10 @@ class Week9 extends Frame{  //controlling class
 		quilt = new BufferedImage(texture.getWidth() * 2, texture.getWidth() * 2, texture.getType());
 		//quilt1 = quilt1(texture, quilt, false);
 		//quilt2 = quilt1(texture, quilt, true);
-		quilt2 = quilt3(texture, target, target_gray, true);
+		quilt2 = quilt3(texture, target, texture_gray, target_gray , true);
 		//quilt3 = quilt(texture, quilt);
 		
-		myOptImage = quilt2(texture, target_gray, texture_gray);
+		myOptImage = quilt2(texture, target, texture_gray, target_gray);
 		//myOptImage1 = quilt2(texture, jesse, rgb2gray(jesse));
 		//myOptImage = quilt(texture, target);
 
@@ -143,6 +144,8 @@ class Week9 extends Frame{  //controlling class
 	public BufferedImage smallPatch2(BufferedImage src) {
 		int w = src.getWidth() / percent;
 		int h = src.getHeight() / percent;
+		//int w = 30;
+		//int h = 30;
 		BufferedImage result = new BufferedImage(w, h, src.getType());
 
 		int randomX = (int) (Math.random() * (src.getWidth() - w));
@@ -191,7 +194,7 @@ class Week9 extends Frame{  //controlling class
 		return result;
 	}
 	
-	public BufferedImage quilt2(BufferedImage input, BufferedImage output, BufferedImage greymap) {
+	public BufferedImage quilt2(BufferedImage input, BufferedImage output, BufferedImage greyMapTex,BufferedImage greyMapTar ) {
 		int outW = output.getWidth();
 		int outH = output.getHeight();
 
@@ -200,6 +203,10 @@ class Week9 extends Frame{  //controlling class
 
 		int smlW = inpW / percent;
 		int smlH = inpH / percent;
+		
+		//System.out.println(Integer.toString(smlW)+" , "+Integer.toString(smlH) );
+		//int smlW = 30;
+		//int smlH = 30;
 
 		int overlapW = smlW / 4;
 		int overlapH = smlH / 4;
@@ -213,7 +220,7 @@ class Week9 extends Frame{  //controlling class
 				if (i == 0 && j == 0) {
 					smlBlockA = smallPatch2(input);
 				} else {
-					smlBlockA = minimumErrorBoundary1(result, returnB1(result, input, greymap, i, j), greymap, i, j);
+					smlBlockA = minimumErrorBoundary1(result, returnB1(result, input, greyMapTex, greyMapTar , i, j), greyMapTex, greyMapTar , i, j);
 				}
 
 				for (int a = 0; a < smlW && i + a < result.getWidth(); a++) {
@@ -227,7 +234,7 @@ class Week9 extends Frame{  //controlling class
 		return result;
 	}
 	
-	public double findBlockB1(BufferedImage output, BufferedImage blockB, BufferedImage greyMap, int x, int y) {
+	public double findBlockB1(BufferedImage output, BufferedImage blockB, BufferedImage greyMapTex, BufferedImage greyMapTar, int x, int y) {
 
 		//TODO have greymap actually be used
 		int widthA = blockB.getWidth();
@@ -256,27 +263,37 @@ class Week9 extends Frame{  //controlling class
 					int blueB = getBlue(pixelB);
 					int greenB = getGreen(pixelB);
 					
-					int pixelC = greyMap.getRGB(i, j);
+					int pixelC = greyMapTex.getRGB(i, j);
 					int redC = getRed(pixelC);
 					int blueC = getBlue(pixelC);
 					int greenC = getGreen(pixelC);
 					
+					int pixelD = greyMapTar.getRGB(x + i,y + j);
+					int redD = getRed(pixelD);
+					int blueD = getBlue(pixelD);
+					int greenD = getGreen(pixelD);
+					
 					float[] hsbA = new float[3];
 					float[] hsbB = new float[3];
 					float[] hsbC = new float[3];
+					float[] hsbD = new float[3];
 					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
 					Color.RGBtoHSB(redB, blueB, greenB, hsbB);
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
+					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					
-					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
-					double correspondenceDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					//double correspondenceDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
+					
+					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
 					//colorArray[j][i] = colorDifference;
 					//System.out.println("color value differenc					
 					
 
 					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)+ Math.pow((greenA - greenB), 2);
 					mycost += colorDifference;
-					corCost += correspondenceDifference;
+					corCost += corDifference;
 				}
 			}
 		}
@@ -295,24 +312,45 @@ class Week9 extends Frame{  //controlling class
 					int greenB = getGreen(pixelB);
 					
 					//Texture Greymap
-					int pixelC = greyMap.getRGB(i, j);
+					int pixelC = greyMapTex.getRGB(i, j);
 					int redC = getRed(pixelC);
 					int blueC = getBlue(pixelC);
-					int greenC = getGreen(pixelC);					
+					int greenC = getGreen(pixelC);
+					
+					int pixelD;
+					int redD = 0;
+					int blueD = 0;
+					int greenD = 0;
+
+					try {
+						pixelD = greyMapTar.getRGB(x + i, y + j);
+						redD = getRed(pixelD);
+						blueD = getBlue(pixelD);
+						greenD = getGreen(pixelD);
+					} catch (Exception e) {
+						System.out.println(Integer.toString(x+i)+","+Integer.toString(y+j));
+						System.out.println("Height is "+ Integer.toString(greyMapTar.getHeight())+", Width is "+Integer.toString(greyMapTar.getWidth()));
+					}
+
 					
 					float[] hsbA = new float[3];
 					float[] hsbB = new float[3];
 					float[] hsbC = new float[3];
+					float[] hsbD = new float[3];
 					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
 					Color.RGBtoHSB(redB, blueB, greenB, hsbB);				
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
+					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					
-					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
-					double correspondenceDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+					
+					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					//double correspondenceDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
+					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
 
 					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)+ Math.pow((greenA - greenB), 2);
 					mycost += colorDifference;
-					corCost += correspondenceDifference;
+					corCost += corDifference;
 				}
 			}
 		}
@@ -322,20 +360,20 @@ class Week9 extends Frame{  //controlling class
 		return trueCost;
 	}	
 	
-	public BufferedImage returnB1(BufferedImage output, BufferedImage input, BufferedImage greymap, int x, int y) {
+	public BufferedImage returnB1(BufferedImage output, BufferedImage input, BufferedImage greyMapTex, BufferedImage greyMapTar, int x, int y) {
 		
 		//TODO have greymap actually be used
 		BufferedImage blockB = smallPatch2(input);
 		BufferedImage finalBlockB = blockB;
 		//double[] originCosts = findBlockB1(output, rgb2gray(blockB), greymap,x, y);
-		double originCost = findBlockB1(output, rgb2gray(blockB), greymap,x, y);
+		double originCost = findBlockB1(output, rgb2gray(blockB), greyMapTex, greyMapTar ,x, y);
 		//double originColCost = originCosts[0];
 		//double originCorCost = 50.0;
 		//double originCorCost = originCosts[1];
 		for (int t = 0; t < 200; t++) {
 			blockB = smallPatch(input);
 			//double[] iterativeCosts = findBlockB1(output, rgb2gray(blockB), greymap, x, y);		
-			double iterativeCost = findBlockB1(output, rgb2gray(blockB), greymap, x, y);	
+			double iterativeCost = findBlockB1(output, rgb2gray(blockB), greyMapTex, greyMapTar, x, y);	
 			//double iterativeColCost = iterativeCosts[0];
 			//double iterativeCorCost = iterativeCosts[1];
 			if (iterativeCost < originCost) {
@@ -348,7 +386,7 @@ class Week9 extends Frame{  //controlling class
 		return finalBlockB;
 	}
 
-	public BufferedImage minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, BufferedImage greyMap , int x, int y) {
+	public BufferedImage minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, BufferedImage greyMapTex, BufferedImage greyMapTar , int x, int y) {
 
 		BufferedImage cutB = new BufferedImage(blockB.getWidth(), blockB.getHeight(), blockB.getType());
 
@@ -365,7 +403,7 @@ class Week9 extends Frame{  //controlling class
 		double[][] colorArray = new double[heightA][widthA];
 		//Correspondence array
 		double[][] corArray = new double[heightA][widthA];
-		System.out.println("HSB Code is running");
+		//System.out.println("HSB Code is running");
 		if (y != 0) {
 			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
 				for (int i = 0; i < widthA && x + i < output.getWidth(); i++) {
@@ -381,23 +419,34 @@ class Week9 extends Frame{  //controlling class
 					int blueB = getBlue(pixelB);
 					int greenB = getGreen(pixelB);
 					
-					int pixelC = greyMap.getRGB(i, j);
+					int pixelC = greyMapTex.getRGB(i, j);
 					int redC = getRed(pixelC);
 					int blueC = getBlue(pixelC);
 					int greenC = getGreen(pixelC);	
 					
+					int pixelD = greyMapTar.getRGB(x+i, y+j);
+					int redD = getRed(pixelD);
+					int blueD = getBlue(pixelD);
+					int greenD = getGreen(pixelD);	
+					
 					float[] hsbA = new float[3];
 					float[] hsbB = new float[3];
-					float[] hsbC = new float[3];					
+					float[] hsbC = new float[3];
+					float[] hsbD = new float[3];	
 					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
 					Color.RGBtoHSB(redB, blueB, greenB, hsbB);
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
-					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
-					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
-					double corDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
+					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					//double corDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
 					
-					colorArray[j][i] = colorDifference;
-					corArray[j][i] = corDifference;
+					//colorArray[j][i] = colorDifference;
+					//corArray[j][i] = corDifference;
+					
+					double trueDif = ((colorDifference*alpha)+(corDifference* (1-alpha)));
+					colorArray[i][j] = trueDif;
 					//System.out.println("color value difference is "+ colorDifference);
 				}
 			}
@@ -417,27 +466,38 @@ class Week9 extends Frame{  //controlling class
 					int blueB = getBlue(pixelB);
 					int greenB = getGreen(pixelB);
 					
-					int pixelC = greyMap.getRGB(i, j);
+					int pixelC = greyMapTex.getRGB(i, j);
 					int redC = getRed(pixelC);
 					int blueC = getBlue(pixelC);
 					int greenC = getGreen(pixelC);	
 					
+					int pixelD = greyMapTar.getRGB(x + i, y + j);
+					int redD = getRed(pixelD);
+					int blueD = getBlue(pixelD);
+					int greenD = getGreen(pixelD);	
+					
 					float[] hsbA = new float[3];
 					float[] hsbB = new float[3];
 					float[] hsbC = new float[3];
+					float[] hsbD = new float[3];	
 					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
 					Color.RGBtoHSB(redB, blueB, greenB, hsbB);
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
-					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
-					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
-					double corDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					
-					colorArray[j][i] = colorDifference;
-					corArray[j][i] = corDifference;
+					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					//double corDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
+					
+					//colorArray[j][i] = colorDifference;
+					//corArray[j][i] = corDifference;
+					double trueDif = ((colorDifference*alpha)+(corDifference* (1-alpha)));
+					colorArray[i][j] = trueDif;
 				}
 			}
 		}
-//				System.out.println(colorArray.length);
+//				System.out.print(colorArray.length+" , ");
 //				System.out.println(colorArray[0].length);
 //				System.out.println(Arrays.deepToString(colorArray));
 
@@ -446,13 +506,13 @@ class Week9 extends Frame{  //controlling class
 				for (int t = 0; t < overlapW; t++) {
 					if (t == 0) {
 						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]);
-						corArray[t][s] += Math.min(corArray[t][s - 1], corArray[t + 1][s - 1]);
+						//corArray[t][s] += Math.min(corArray[t][s - 1], corArray[t + 1][s - 1]);
 					} else if (t == overlapW - 1) {
 						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t - 1][s - 1]);
-						corArray[t][s] += Math.min(corArray[t][s - 1], corArray[t - 1][s - 1]);
+						//corArray[t][s] += Math.min(corArray[t][s - 1], corArray[t - 1][s - 1]);
 					} else {
 						colorArray[t][s] += Math.min(Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]),colorArray[t - 1][s - 1]);
-						corArray[t][s] += Math.min(Math.min(corArray[t][s - 1], corArray[t + 1][s - 1]),corArray[t - 1][s - 1]);
+						//corArray[t][s] += Math.min(Math.min(corArray[t][s - 1], corArray[t + 1][s - 1]),corArray[t - 1][s - 1]);
 					}
 
 				}
@@ -466,13 +526,13 @@ class Week9 extends Frame{  //controlling class
 
 					if (s == 0) {
 						colorArray[t][s] += Math.min(colorArray[t - 1][s], colorArray[t - 1][s + 1]);
-						corArray[t][s] += Math.min(corArray[t - 1][s], corArray[t - 1][s + 1]);
+						//corArray[t][s] += Math.min(corArray[t - 1][s], corArray[t - 1][s + 1]);
 					} else if (s == overlapW - 1) {
 						colorArray[t][s] += Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]);
-						corArray[t][s] += Math.min(corArray[t - 1][s - 1], corArray[t - 1][s]);
+						//corArray[t][s] += Math.min(corArray[t - 1][s - 1], corArray[t - 1][s]);
 					} else {
 						colorArray[t][s] += Math.min(Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]),colorArray[t - 1][s + 1]);
-						corArray[t][s] += Math.min(Math.min(corArray[t - 1][s - 1], corArray[t - 1][s]),corArray[t - 1][s + 1]);
+						//corArray[t][s] += Math.min(Math.min(corArray[t - 1][s - 1], corArray[t - 1][s]),corArray[t - 1][s + 1]);
 					}
 
 				}
@@ -485,43 +545,43 @@ class Week9 extends Frame{  //controlling class
 		if (y != 0) {
 			for (int k = widthA - 1; k > 0; k--) {
 				double minimumCol = 0;
-				double minimumCor = 0;
+				//double minimumCor = 0;
 				if (k == widthA - 1) {
 					for (int u = 0; u < overlapW; u++) {
-						if (u == 0 || ((colorArray[k][u] < minimumCol) && (corArray[k][u] < minimumCor)) ) {
+						if (u == 0 || ((colorArray[k][u] < minimumCol) ) ) {
 							minimumCol = colorArray[k][u];
-							minimumCor = corArray[k][u];
+							//minimumCor = corArray[k][u];
 							locatY[k] = u;
 						}
 					}
 				}
 				if (locatY[k] == 0) {
 					double smalleastCol = 0;
-					double smalleastCor = 0;					
+					//double smalleastCor = 0;					
 					for (int q = 0; q < 2; q++) {
-						if ((smalleastCol == 0 && smalleastCor == 0) || (colorArray[k - 1][q] < smalleastCol && corArray[k - 1][q] < smalleastCor) ) {
+						if ((smalleastCol == 0 ) || (colorArray[k - 1][q] < smalleastCol) ) {
 							smalleastCol = colorArray[k - 1][q];
-							smalleastCor = corArray[k - 1][q];
+							//smalleastCor = corArray[k - 1][q];
 							locatY[k - 1] = q;
 						}
 					}
 				} else if (locatY[k] == overlapW - 1) {
 					double minumCol = 0;
-					double minumCor = 0;
+					//double minumCor = 0;
 					for (int r = overlapW - 2; r < overlapW; r++) {
-						if ((minumCol == 0 && minumCor == 0) || (colorArray[k - 1][r] < minumCol && corArray[k - 1][r] < minumCor)) {
+						if ((minumCol == 0 ) || (colorArray[k - 1][r] < minumCol )) {
 							minumCol = colorArray[k - 1][r];
-							minumCor = corArray[k - 1][r];
+							//minumCor = corArray[k - 1][r];
 							locatY[k - 1] = r;
 						}
 					}
 				} else {
 					double smallCol = 0;
-					double smallCor = 0;
+					//double smallCor = 0;
 					for (int d = locatY[k] - 1; d < locatY[k] + 2; d++) {
-						if ((smallCol == 0 && smallCor == 0) || (colorArray[k - 1][d] < smallCol && corArray[k - 1][d] < smallCor)) {
+						if ((smallCol == 0 ) || (colorArray[k - 1][d] < smallCol )) {
 							smallCol = colorArray[k - 1][d];
-							smallCor = corArray[k - 1][d];
+							//smallCor = corArray[k - 1][d];
 							locatY[k - 1] = d;
 						}
 					}
@@ -533,12 +593,12 @@ class Week9 extends Frame{  //controlling class
 		if (x != 0) {
 			for (int k = heightA - 1; k > 0; k--) {
 				double minimumCol = 0;
-				double minimumCor = 0;
+				//double minimumCor = 0;
 				if (k == heightA - 1) {
 					for (int u = 0; u < overlapW; u++) {
-						if (u == 0 || (colorArray[k][u] < minimumCol && corArray[k][u] < minimumCor)) {
+						if (u == 0 || (colorArray[k][u] < minimumCol )) {
 							minimumCol = colorArray[k][u];
-							minimumCor = corArray[k][u];
+							//minimumCor = corArray[k][u];
 							locatX[k] = u;
 						}
 					}
@@ -546,31 +606,31 @@ class Week9 extends Frame{  //controlling class
 
 				if (locatX[k] == 0) {
 					double smalleastCol = 0;
-					double smalleastCor = 0;
+					//double smalleastCor = 0;
 					for (int q = 0; q < 2; q++) {
-						if ((smalleastCol == 0 && smalleastCor == 0) || (colorArray[k - 1][q] < smalleastCol && corArray[k - 1][q] < smalleastCor)) {
+						if ((smalleastCol == 0 ) || (colorArray[k - 1][q] < smalleastCol)) {
 							smalleastCol = colorArray[k - 1][q];
-							smalleastCor = corArray[k - 1][q];
+							//smalleastCor = corArray[k - 1][q];
 							locatX[k - 1] = q;
 						}
 					}
 				} else if (locatX[k] == overlapW - 1) {
 					double minumCol = 0;
-					double minumCor = 0;
+					//double minumCor = 0;
 					for (int r = overlapW - 2; r < overlapW; r++) {
-						if ((minumCol == 0 && minumCor == 0) || (colorArray[k - 1][r] < minumCol && corArray[k - 1][r] < minumCor)) {
+						if ((minumCol == 0 ) || (colorArray[k - 1][r] < minumCol )) {
 							minumCol = colorArray[k - 1][r];
-							minumCor = corArray[k - 1][r];
+							//minumCor = corArray[k - 1][r];
 							locatX[k - 1] = r;
 						}
 					}
 				} else {
 					double smallCol = 0;
-					double smallCor = 0;
+					//double smallCor = 0;
 					for (int d = locatX[k] - 1; d < locatX[k] + 2; d++) {
-						if ((smallCol == 0 && smallCor == 0) || (colorArray[k - 1][d] < smallCol && corArray[k - 1][d] < smallCor)) {
+						if ((smallCol == 0 ) || (colorArray[k - 1][d] < smallCol )) {
 							smallCol = colorArray[k - 1][d];
-							smallCor = corArray[k - 1][d];
+							//smallCor = corArray[k - 1][d];
 							locatX[k - 1] = d;
 						}
 					}
@@ -612,7 +672,8 @@ class Week9 extends Frame{  //controlling class
 	}	
 	
 	
-	public BufferedImage quilt3(BufferedImage input, BufferedImage output, BufferedImage greyMap, Boolean overlap) {
+	
+	public BufferedImage quilt3(BufferedImage input, BufferedImage output, BufferedImage greyMapTex, BufferedImage greyMapTar , Boolean overlap) {
 		int outW = output.getWidth();
 		int outH = output.getHeight();
 
@@ -638,7 +699,7 @@ class Week9 extends Frame{  //controlling class
 					if (i == 0 && j == 0) {
 						smlBlockA = smallPatch(input);
 					} else {
-						smlBlockA = returnB1(result, input, greyMap , i, j);
+						smlBlockA = returnB1(result, input, greyMapTex, greyMapTar , i, j);
 					}
 				} else {
 					smlBlockA = smallPatch(input);
@@ -1026,7 +1087,7 @@ class Week9 extends Frame{  //controlling class
 		Font f1 = new Font("Helvetica", Font.PLAIN, 13);
 		g.setFont(f1);
 
-		g.drawString("1.Texture image", 25, 40);
+		g.drawString("1.Texture image", 25, 45);
 		
 		//Quilt1's drawing
 		//g.drawString("1.a. Simple quilt", 25 * 2 + texture.getWidth(), 40);
