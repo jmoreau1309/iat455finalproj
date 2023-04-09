@@ -12,33 +12,22 @@ import java.util.Arrays;
 import javax.imageio.ImageIO;
 
 class Week9 extends Frame{  //controlling class
-	BufferedImage src1;  
-	BufferedImage src1_bright;
-	BufferedImage src1_brightGama; 
-	
-	BufferedImage statueImg;
-	BufferedImage backgroundImg; 
-	BufferedImage statueMatte; 
-	BufferedImage edge_mask;
+
 	BufferedImage jesse; 
 	BufferedImage synth;
 	
-	BufferedImage blurred; 
-	BufferedImage colorCorrected; 
-	BufferedImage coloredEdges;
-	BufferedImage shadedStatue;
-	BufferedImage finalResult;
+	
 	BufferedImage tex_corr;  
 	BufferedImage tar_corr;
 
 	int width, width1; 
 	int height, height1; 
 	//Transfer variables
-	int bsize = 20;
-	double ovsize = Math.floor(bsize/6);
-	double tolerance = 0.1;
+	//int bsize = 20;
+	//double ovsize = Math.floor(bsize/6);
+	//double tolerance = 0.1;
 
-	double si,ei,sj,ej;
+	//double si,ei,sj,ej;
 	
 	BufferedImage carImage; // reference to an Image object
 
@@ -50,7 +39,7 @@ class Week9 extends Frame{  //controlling class
 	BufferedImage quilt1, quilt2, quilt3;
 	BufferedImage target_gray,texture_gray;
 	//Original was 2
-	int percent = 3;
+	int percent = 10;
 	//Original was 4
 	int overlapPercent = 4;
 	
@@ -63,21 +52,11 @@ class Week9 extends Frame{  //controlling class
 		// Get an image from the specified file in the current directory on the
 		// local hard disk.
 		try {
-			src1 = ImageIO.read(new File("images/backdoor.jpg")); 
-			statueImg = ImageIO.read(new File("images/statue.jpg"));
-			backgroundImg = ImageIO.read(new File("images/background.jpg")); 
-			statueMatte = ImageIO.read(new File("images/statue_mat0.jpg")); 
-			edge_mask = ImageIO.read(new File("images/edge_mask.jpg")); 
+
 			jesse = ImageIO.read(new File("images/JesseS5.jpg")); 
 			synth = ImageIO.read(new File("images/synth.jpg")); 
 			
-			/*
-			carImage = ImageIO.read(new File("images/JesseS5.jpg"));
-
-			texture = ImageIO.read(new File("images/synth.jpg"));
-			target = ImageIO.read(new File("images/JesseS5.jpg"));
-			
-			*/
+			//carImage is used to width
 			carImage = ImageIO.read(new File("images/JesseS5.jpg"));
 
 			texture = ImageIO.read(new File("images/t13.png"));
@@ -102,9 +81,12 @@ class Week9 extends Frame{  //controlling class
 		texture_gray = rgb2gray(texture);
 
 		quilt = new BufferedImage(texture.getWidth() * 2, texture.getWidth() * 2, texture.getType());
+
+		quilt2 = quilt3(texture, target, texture_gray, target_gray , true);
+		
+		//Left overs from original code
 		//quilt1 = quilt1(texture, quilt, false);
 		//quilt2 = quilt1(texture, quilt, true);
-		quilt2 = quilt3(texture, target, texture_gray, target_gray , true);
 		//quilt3 = quilt(texture, quilt);
 		
 		myOptImage = quilt2(texture, target, texture_gray, target_gray);
@@ -124,7 +106,7 @@ class Week9 extends Frame{  //controlling class
 
 	//=======================================================//
 	
-	//Randomly finds small patch
+	//Randomly finds small patch, from old code but doesn't need to be changed
 	public BufferedImage smallPatch(BufferedImage src) {
 		int w = src.getWidth() / percent;
 		int h = src.getHeight() / percent;
@@ -140,24 +122,7 @@ class Week9 extends Frame{  //controlling class
 		return result;
 	}
 	
-	
-	public BufferedImage smallPatch2(BufferedImage src) {
-		int w = src.getWidth() / percent;
-		int h = src.getHeight() / percent;
-		//int w = 30;
-		//int h = 30;
-		BufferedImage result = new BufferedImage(w, h, src.getType());
-
-		int randomX = (int) (Math.random() * (src.getWidth() - w));
-		int randomY = (int) (Math.random() * (src.getHeight() - h));
-		for (int i = 0; i < result.getWidth(); i++) {
-			for (int j = 0; j < result.getHeight(); j++) {
-				result.setRGB(i, j, src.getRGB(randomX + i, randomY + j));
-			}
-		}
-		return result;
-	}
-
+	//Left over code from original
 	public BufferedImage quilt(BufferedImage input, BufferedImage output) {
 		int outW = output.getWidth();
 		int outH = output.getHeight();
@@ -171,7 +136,7 @@ class Week9 extends Frame{  //controlling class
 		int overlapW = smlW / 4;
 		int overlapH = smlH / 4;
 
-		BufferedImage smlBlockA = smallPatch2(output);
+		BufferedImage smlBlockA = smallPatch(output);
 		BufferedImage result = new BufferedImage(outW, outH, output.getType());
 		//BufferedImage result = new BufferedImage(outW, outH, output.getType());
 		for (int j = 0; j < result.getHeight(); j += (smlH - overlapH)) {
@@ -194,6 +159,7 @@ class Week9 extends Frame{  //controlling class
 		return result;
 	}
 	
+	//Modified quilt code to use new methods for quilt
 	public BufferedImage quilt2(BufferedImage input, BufferedImage output, BufferedImage greyMapTex,BufferedImage greyMapTar ) {
 		int outW = output.getWidth();
 		int outH = output.getHeight();
@@ -204,21 +170,18 @@ class Week9 extends Frame{  //controlling class
 		int smlW = inpW / percent;
 		int smlH = inpH / percent;
 		
-		//System.out.println(Integer.toString(smlW)+" , "+Integer.toString(smlH) );
-		//int smlW = 30;
-		//int smlH = 30;
 
 		int overlapW = smlW / 4;
 		int overlapH = smlH / 4;
 
-		BufferedImage smlBlockA = smallPatch2(output);
+		BufferedImage smlBlockA = smallPatch(output);
 		BufferedImage result = new BufferedImage(outW, outH, input.getType());
 		//BufferedImage result = new BufferedImage(outW, outH, output.getType());
 		for (int j = 0; j < result.getHeight(); j += (smlH - overlapH)) {
 			for (int i = 0; i < result.getWidth(); i += (smlW - overlapW)) {
 
 				if (i == 0 && j == 0) {
-					smlBlockA = smallPatch2(input);
+					smlBlockA = smallPatch(input);
 				} else {
 					smlBlockA = minimumErrorBoundary1(result, returnB1(result, input, greyMapTex, greyMapTar , i, j), greyMapTex, greyMapTar , i, j);
 				}
@@ -234,15 +197,17 @@ class Week9 extends Frame{  //controlling class
 		return result;
 	}
 	
+	//Modified FindblockB code to account for cost of correspondence
 	public double findBlockB1(BufferedImage output, BufferedImage blockB, BufferedImage greyMapTex, BufferedImage greyMapTar, int x, int y) {
 
-		//TODO have greymap actually be used
 		int widthA = blockB.getWidth();
 		int heightA = blockB.getHeight();
-
+		
+		//How many pixels overlap with the block next to it
 		int overlapW = widthA / 4;
 
 		int startY = heightA - overlapW;
+		
 		//Color cost between texture image
 		double mycost = 0;
 		//correspondence between source image cost
@@ -282,16 +247,15 @@ class Week9 extends Frame{  //controlling class
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
 					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					
+					//Was using HSB before but wasn't sure if it was working
 					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
 					//double correspondenceDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
 					
+					//Color difference is how well it matches with adjacent pixels
 					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					//corDifference is how well it matches with the luminance of the target greymap with the texture greymap
 					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
-					//colorArray[j][i] = colorDifference;
-					//System.out.println("color value differenc					
 					
-
-					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)+ Math.pow((greenA - greenB), 2);
 					mycost += colorDifference;
 					corCost += corDifference;
 				}
@@ -342,28 +306,28 @@ class Week9 extends Frame{  //controlling class
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
 					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					
-					
+					//Was using HSB before but wasn't sure if it was working
 					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
 					//double correspondenceDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
+					
+					//Color difference is how well it matches with adjacent pixels
 					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					//corDifference is how well it matches with the luminance of the target greymap with the texture greymap
 					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
 
-					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)+ Math.pow((greenA - greenB), 2);
 					mycost += colorDifference;
 					corCost += corDifference;
 				}
 			}
 		}
-		//twoCosts[0] = mycost;
-		//twoCosts[1] = corCost;
+
 		double trueCost = ((mycost*alpha)+(corCost* (1-alpha)));
 		return trueCost;
 	}	
 	
 	public BufferedImage returnB1(BufferedImage output, BufferedImage input, BufferedImage greyMapTex, BufferedImage greyMapTar, int x, int y) {
-		
-		//TODO have greymap actually be used
-		BufferedImage blockB = smallPatch2(input);
+
+		BufferedImage blockB = smallPatch(input);
 		BufferedImage finalBlockB = blockB;
 		//double[] originCosts = findBlockB1(output, rgb2gray(blockB), greymap,x, y);
 		double originCost = findBlockB1(output, rgb2gray(blockB), greyMapTex, greyMapTar ,x, y);
@@ -385,7 +349,8 @@ class Week9 extends Frame{  //controlling class
 		}
 		return finalBlockB;
 	}
-
+	//Modified minimumErrorBoundary1 Code to perform boundary cuts, for sake of texture transfer should account for color relation to adjacent placed blocks
+	//and should account for how well it corresponds to the luminance of the greyMapTar 
 	public BufferedImage minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, BufferedImage greyMapTex, BufferedImage greyMapTar , int x, int y) {
 
 		BufferedImage cutB = new BufferedImage(blockB.getWidth(), blockB.getHeight(), blockB.getType());
@@ -672,7 +637,7 @@ class Week9 extends Frame{  //controlling class
 	}	
 	
 	
-	
+	//Modified Quilting Code to perform overlaps, if neither image is capable of producing a rough image of the target image means that problem is not directly tied to boundary cutting
 	public BufferedImage quilt3(BufferedImage input, BufferedImage output, BufferedImage greyMapTex, BufferedImage greyMapTar , Boolean overlap) {
 		int outW = output.getWidth();
 		int outH = output.getHeight();
@@ -717,7 +682,7 @@ class Week9 extends Frame{  //controlling class
 	}
 	
 	
-	
+	//Leftover from original code,
 	public double findBlockB(BufferedImage output, BufferedImage blockB, int x, int y) {
 
 		int widthA = blockB.getWidth();
@@ -771,7 +736,8 @@ class Week9 extends Frame{  //controlling class
 
 		return mycost;
 	}
-
+	
+	//Leftover from original code,
 	public BufferedImage returnB(BufferedImage output, BufferedImage input, int x, int y) {
 		BufferedImage blockB = smallPatch(input);
 		BufferedImage finalBlockB = blockB;
@@ -788,7 +754,7 @@ class Week9 extends Frame{  //controlling class
 	}
 
 
-	
+	//Leftover from original code,
 	public BufferedImage minimumErrorBoundary(BufferedImage output, BufferedImage blockB, int x, int y) {
 
 		BufferedImage cutB = new BufferedImage(blockB.getWidth(), blockB.getHeight(), blockB.getType());
@@ -995,7 +961,7 @@ class Week9 extends Frame{  //controlling class
 	}
 
 	
-	
+	//Leftover from original code,
 	public BufferedImage quilt1(BufferedImage input, BufferedImage output, Boolean overlap) {
 		int outW = output.getWidth();
 		int outH = output.getHeight();
@@ -1093,25 +1059,25 @@ class Week9 extends Frame{  //controlling class
 		//g.drawString("1.a. Simple quilt", 25 * 2 + texture.getWidth(), 40);
 		
 		//Quilt 2's drawing
-		//g.drawString("1.b. Overlap quilt", 25 * 3 + texture.getWidth() + quilt.getWidth(), 40);
+		g.drawString("1.b. Overlap quilt", 25 * 3 + target.getWidth()*2, 50);
 		
 		//Quilt 3's Drawing
 		//g.drawString("1.c. Quilt with minimum error boundary cut", 25 * 4 + texture.getWidth() + quilt.getWidth() * 2, 40);
 
-		g.drawString("2. Target image", 25, 50 * 2 + quilt.getHeight() - 10);
-		g.drawString("2.a. Grayscale image", 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight() - 10);
-		g.drawString("2.b. Texture transfer image", 25 * 3 + target.getWidth() * 2, 50 * 2 + quilt.getHeight() - 10);
+		g.drawString("2. Target image", 25, 50 * 2 + quilt.getHeight()+30 );
+		g.drawString("2.a. Grayscale image", 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight()+30);
+		g.drawString("2.b. Texture transfer image", 25 * 3 + target.getWidth() * 2, 50 * 2 + quilt.getHeight()+30);
 
 		
 		g.drawImage(texture, 25, 50, texture.getWidth(), texture.getHeight(), this);
 
-		g.drawImage(target, 25, 50 * 2 + quilt.getHeight(), target.getWidth(), target.getHeight(), this);
+		g.drawImage(target, 25, 50 * 2 + quilt.getHeight()+40, target.getWidth(), target.getHeight(), this);
 
 		//g.drawImage(quilt1, 25 * 2 + texture.getWidth(), 50, quilt1.getWidth(), quilt1.getHeight(), this);
 		
+		//Reason for try and catch is beacause java tries to draw these before they are even finished being made, this prevents massive amounts of error messages
 		try {
-
-			g.drawImage(quilt2, 25 * 3 + target.getWidth()*2, 50, quilt2.getWidth(), quilt2.getHeight(), this);
+			g.drawImage(quilt2, 25 * 3 + target.getWidth()*2, 60, quilt2.getWidth(), quilt2.getHeight(), this);
 		} catch (Exception e) {
 			System.out.println("Cannot draw quilt 2");
 		}
@@ -1124,11 +1090,13 @@ class Week9 extends Frame{  //controlling class
 		}
 
 		*/
-		g.drawImage(target_gray, 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight(), target.getWidth(), target.getHeight(), this);
-
+		
+		g.drawImage(target_gray, 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight()+40, target.getWidth(), target.getHeight(), this);
+		
+		//Reason for try and catch is beacause java tries to draw these before they are even finished being made, this prevents massive amounts of error messages
 		try {
 
-			g.drawImage(myOptImage, 25 * 3 + target.getWidth() * 2, 50 * 2 + quilt.getHeight(), myOptImage.getWidth(), myOptImage.getHeight(), this);
+			g.drawImage(myOptImage, 25 * 3 + target.getWidth() * 2, 50 * 2 + quilt.getHeight()+40, myOptImage.getWidth(), myOptImage.getHeight(), this);
 			//g.drawImage(myOptImage1, 25 * 4 + jesse.getWidth() * 2, 50 * 2 + quilt.getHeight(), myOptImage1.getWidth(), myOptImage1.getHeight(), this);
 		} catch (Exception e) {
 			System.out.println("Cannot draw myOptImage");
