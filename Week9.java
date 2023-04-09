@@ -42,7 +42,8 @@ class Week9 extends Frame{  //controlling class
 	int percent = 3;
 	//Original was 4
 	int overlapPercent = 4;
-	
+	//Alpha is tolerance between correlation and color, basically which one is favored more than the other
+	//Max for Alpha is 1 and min is 0
 	double alpha = 0.6;
 
 	BufferedImage myOptImage, myOptImage1;
