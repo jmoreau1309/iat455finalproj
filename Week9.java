@@ -130,22 +130,24 @@ class Week9 extends Frame{  //controlling class
 
 		int inpW = input.getWidth();
 		int inpH = input.getHeight();
-
+		//Used for determining the block size width
 		int smlW = inpW / percent;
 		int smlH = inpH / percent;
-
+		//Used for determining overlap size in the block size
 		int overlapW = smlW / 4;
 		int overlapH = smlH / 4;
 
 		BufferedImage smlBlockA = smallPatch(output);
 		BufferedImage result = new BufferedImage(outW, outH, output.getType());
-		//BufferedImage result = new BufferedImage(outW, outH, output.getType());
+
 		for (int j = 0; j < result.getHeight(); j += (smlH - overlapH)) {
 			for (int i = 0; i < result.getWidth(); i += (smlW - overlapW)) {
-
+				//First Patch selected is always random
 				if (i == 0 && j == 0) {
 					smlBlockA = smallPatch(input);
-				} else {
+				}
+				//Any other patch performs minimum error cut
+				else {
 					smlBlockA = minimumErrorBoundary(result, returnB(result, input, i, j), i, j);
 				}
 
@@ -167,26 +169,31 @@ class Week9 extends Frame{  //controlling class
 
 		int inpW = input.getWidth();
 		int inpH = input.getHeight();
-
+		
+		//Used for determining the block size width
 		int smlW = inpW / percent;
 		int smlH = inpH / percent;
 		
-
+		//Used for determining overlap size in the block size
 		int overlapW = smlW / 4;
 		int overlapH = smlH / 4;
 
 		BufferedImage smlBlockA = smallPatch(output);
 		BufferedImage result = new BufferedImage(outW, outH, input.getType());
-		//BufferedImage result = new BufferedImage(outW, outH, output.getType());
+
 		for (int j = 0; j < result.getHeight(); j += (smlH - overlapH)) {
 			for (int i = 0; i < result.getWidth(); i += (smlW - overlapW)) {
-
+				//First Patch selected is always random
 				if (i == 0 && j == 0) {
 					smlBlockA = smallPatch(input);
-				} else {
+				}
+				//Any other patch performs minimum error cut
+				else {
+					//minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, BufferedImage greyMapTex, BufferedImage greyMapTar , int x, int y)
+					//In this case blockB is the returnB1
 					smlBlockA = minimumErrorBoundary1(result, returnB1(result, input, greyMapTex, greyMapTar , i, j), greyMapTex, greyMapTar , i, j);
 				}
-
+				//Overwriting RGB values
 				for (int a = 0; a < smlW && i + a < result.getWidth(); a++) {
 					for (int b = 0; b < smlH && j + b < result.getHeight(); b++) {
 						result.setRGB(i + a, j + b, smlBlockA.getRGB(a, b));
@@ -210,11 +217,10 @@ class Week9 extends Frame{  //controlling class
 		int startY = heightA - overlapW;
 		
 		//Color cost between texture image
-		double mycost = 0;
+		double colorCost = 0;
 		//correspondence between source image cost
 		double corCost = 0;
 		
-		//double[] twoCosts = new double [2];
 
 		if (y != 0) {
 			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
@@ -257,7 +263,7 @@ class Week9 extends Frame{  //controlling class
 					//corDifference is how well it matches with the luminance of the target greymap with the texture greymap
 					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
 					
-					mycost += colorDifference;
+					colorCost += colorDifference;
 					corCost += corDifference;
 				}
 			}
@@ -282,20 +288,12 @@ class Week9 extends Frame{  //controlling class
 					int blueC = getBlue(pixelC);
 					int greenC = getGreen(pixelC);
 					
-					int pixelD;
-					int redD = 0;
-					int blueD = 0;
-					int greenD = 0;
+					//Target Greymap
+					int pixelD = greyMapTar.getRGB(x + i, y + j);
+					int redD = getRed(pixelD);
+					int blueD = getBlue(pixelD);
+					int greenD = getGreen(pixelD);
 
-					try {
-						pixelD = greyMapTar.getRGB(x + i, y + j);
-						redD = getRed(pixelD);
-						blueD = getBlue(pixelD);
-						greenD = getGreen(pixelD);
-					} catch (Exception e) {
-						System.out.println(Integer.toString(x+i)+","+Integer.toString(y+j));
-						System.out.println("Height is "+ Integer.toString(greyMapTar.getHeight())+", Width is "+Integer.toString(greyMapTar.getWidth()));
-					}
 
 					
 					float[] hsbA = new float[3];
@@ -316,13 +314,13 @@ class Week9 extends Frame{  //controlling class
 					//corDifference is how well it matches with the luminance of the target greymap with the texture greymap
 					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
 
-					mycost += colorDifference;
+					colorCost += colorDifference;
 					corCost += corDifference;
 				}
 			}
 		}
-
-		double trueCost = ((mycost*alpha)+(corCost* (1-alpha)));
+		//True cost is ripped from the Matlab code, combines the values of the corCost and colorcost
+		double trueCost = ((colorCost*alpha)+(corCost* (1-alpha)));
 		return trueCost;
 	}	
 	
@@ -330,21 +328,16 @@ class Week9 extends Frame{  //controlling class
 
 		BufferedImage blockB = smallPatch(input);
 		BufferedImage finalBlockB = blockB;
-		//double[] originCosts = findBlockB1(output, rgb2gray(blockB), greymap,x, y);
+
 		double originCost = findBlockB1(output, rgb2gray(blockB), greyMapTex, greyMapTar ,x, y);
-		//double originColCost = originCosts[0];
-		//double originCorCost = 50.0;
-		//double originCorCost = originCosts[1];
+		//Determines best block to use based on truecost from findBlockB1
 		for (int t = 0; t < 200; t++) {
 			blockB = smallPatch(input);
-			//double[] iterativeCosts = findBlockB1(output, rgb2gray(blockB), greymap, x, y);		
+	
 			double iterativeCost = findBlockB1(output, rgb2gray(blockB), greyMapTex, greyMapTar, x, y);	
-			//double iterativeColCost = iterativeCosts[0];
-			//double iterativeCorCost = iterativeCosts[1];
+
 			if (iterativeCost < originCost) {
-				//System.out.println("originColCost: "+ Double.toString(originColCost) + " iterativeColCost: "+ Double.toString(iterativeColCost)+ " originCorCost: "+ Double.toString(originCorCost) + " iterativeCorCost: "+ Double.toString(iterativeCorCost));
 				originCost = iterativeCost;
-				//originCorCost = iterativeCorCost;
 				finalBlockB = blockB;
 			}
 		}
@@ -367,8 +360,6 @@ class Week9 extends Frame{  //controlling class
 		int locationX = 0;
 
 		double[][] colorArray = new double[heightA][widthA];
-		//Correspondence array
-		double[][] corArray = new double[heightA][widthA];
 		//System.out.println("HSB Code is running");
 		if (y != 0) {
 			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
