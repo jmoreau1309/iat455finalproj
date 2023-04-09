@@ -48,10 +48,12 @@ class Week9 extends Frame{  //controlling class
 	BufferedImage quilt;
 	BufferedImage quilt1, quilt2, quilt3;
 	BufferedImage target_gray,texture_gray;
-	int percent = 2;
+	//Original was 2
+	int percent = 3;
+	//Original was 4
 	int overlapPercent = 4;
 
-	BufferedImage myOptImage;
+	BufferedImage myOptImage, myOptImage1;
 
 	public Week9() {
 		// constructor
@@ -76,7 +78,7 @@ class Week9 extends Frame{  //controlling class
 			carImage = ImageIO.read(new File("images/JesseS5.jpg"));
 
 			texture = ImageIO.read(new File("images/t13.png"));
-			target = ImageIO.read(new File("images/target.jpg"));
+			target = ImageIO.read(new File("images/Cerone_425.png"));
 
 
 		} catch (Exception e) {
@@ -97,11 +99,12 @@ class Week9 extends Frame{  //controlling class
 		texture_gray = rgb2gray(texture);
 
 		quilt = new BufferedImage(texture.getWidth() * 2, texture.getWidth() * 2, texture.getType());
-		quilt1 = quilt1(texture, quilt, false);
-		quilt2 = quilt1(texture, quilt, true);
-		quilt3 = quilt(texture, quilt);
+		//quilt1 = quilt1(texture, quilt, false);
+		//quilt2 = quilt1(texture, quilt, true);
+		//quilt3 = quilt(texture, quilt);
 		
 		myOptImage = quilt2(texture, target_gray, texture_gray);
+		//myOptImage1 = quilt2(texture, jesse, rgb2gray(jesse));
 		//myOptImage = quilt(texture, target);
 
 		// Anonymous inner-class listener to terminate program
@@ -205,9 +208,9 @@ class Week9 extends Frame{  //controlling class
 			for (int i = 0; i < result.getWidth(); i += (smlW - overlapW)) {
 
 				if (i == 0 && j == 0) {
-					smlBlockA = smallPatch(input);
+					smlBlockA = smallPatch2(input);
 				} else {
-					smlBlockA = minimumErrorBoundary1(result, returnB(result, input, i, j), greymap, i, j);
+					smlBlockA = minimumErrorBoundary1(result, returnB1(result, input, greymap, i, j), i, j);
 				}
 
 				for (int a = 0; a < smlW && i + a < result.getWidth(); a++) {
@@ -220,7 +223,340 @@ class Week9 extends Frame{  //controlling class
 		}
 		return result;
 	}
+	
+	public double[] findBlockB1(BufferedImage output, BufferedImage blockB, BufferedImage greyMap, int x, int y) {
 
+		//TODO have greymap actually be used
+		int widthA = blockB.getWidth();
+		int heightA = blockB.getHeight();
+
+		int overlapW = widthA / 4;
+
+		int startY = heightA - overlapW;
+		//Color cost between texture image
+		double mycost = 0;
+		//correspondence between source image cost
+		double corCost = 0;
+		
+		double[] twoCosts = new double [2];
+
+		if (y != 0) {
+			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
+				for (int i = 0; i < widthA && x + i < output.getWidth(); i++) {
+					int pixelA = output.getRGB(x + i, y + j);
+					int redA = getRed(pixelA);
+					int blueA = getBlue(pixelA);
+					int greenA = getGreen(pixelA);
+
+					int pixelB = blockB.getRGB(i, j);
+					int redB = getRed(pixelB);
+					int blueB = getBlue(pixelB);
+					int greenB = getGreen(pixelB);
+					
+					int pixelC = greyMap.getRGB(i, j);
+					int redC = getRed(pixelC);
+					int blueC = getBlue(pixelC);
+					int greenC = getGreen(pixelC);
+					
+					float[] hsbA = new float[3];
+					float[] hsbB = new float[3];
+					float[] hsbC = new float[3];
+					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
+					Color.RGBtoHSB(redB, blueB, greenB, hsbB);
+					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
+					
+					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					double correspondenceDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+					//colorArray[j][i] = colorDifference;
+					//System.out.println("color value differenc					
+					
+
+					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)+ Math.pow((greenA - greenB), 2);
+					mycost += colorDifference;
+					corCost += correspondenceDifference;
+				}
+			}
+		}
+
+		if (x != 0) {
+			for (int j = 0; j < heightA && y + j < output.getHeight(); j++) {
+				for (int i = 0; i < overlapW && x + i < output.getWidth(); i++) {
+					int pixelA = output.getRGB(x + i, y + j);
+					int redA = getRed(pixelA);
+					int blueA = getBlue(pixelA);
+					int greenA = getGreen(pixelA);
+
+					int pixelB = blockB.getRGB(i, j);
+					int redB = getRed(pixelB);
+					int blueB = getBlue(pixelB);
+					int greenB = getGreen(pixelB);
+					
+					int pixelC = greyMap.getRGB(i, j);
+					int redC = getRed(pixelC);
+					int blueC = getBlue(pixelC);
+					int greenC = getGreen(pixelC);					
+					
+					float[] hsbA = new float[3];
+					float[] hsbB = new float[3];
+					float[] hsbC = new float[3];
+					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
+					Color.RGBtoHSB(redB, blueB, greenB, hsbB);				
+					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
+					
+					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					double correspondenceDifference = Math.pow((hsbC[2] - hsbB[2]), 2);
+
+					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)+ Math.pow((greenA - greenB), 2);
+					mycost += colorDifference;
+					corCost += correspondenceDifference;
+				}
+			}
+		}
+		twoCosts[0] = mycost;
+		twoCosts[1] = corCost;
+		return twoCosts;
+	}	
+	
+	public BufferedImage returnB1(BufferedImage output, BufferedImage input, BufferedImage greymap, int x, int y) {
+		
+		//TODO have greymap actually be used
+		BufferedImage blockB = smallPatch2(input);
+		BufferedImage finalBlockB = blockB;
+		double originCost = findBlockB1(output, rgb2gray(blockB), greymap,x, y);
+		for (int t = 0; t < 200; t++) {
+			blockB = smallPatch(input);
+			double iterativeCost = findBlockB1(output, rgb2gray(blockB), greymap, x, y);
+			if (iterativeCost < originCost) {
+				originCost = iterativeCost;
+				finalBlockB = blockB;
+			}
+		}
+		return finalBlockB;
+	}
+
+	public BufferedImage minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, int x, int y) {
+
+		BufferedImage cutB = new BufferedImage(blockB.getWidth(), blockB.getHeight(), blockB.getType());
+
+		int widthA = blockB.getWidth();
+		int heightA = blockB.getHeight();
+
+		int overlapW = widthA / 4;
+
+		int startingA = (widthA * 3) / 4;
+
+		int a = 0;
+		int locationX = 0;
+
+		double[][] colorArray = new double[heightA][widthA];
+		System.out.println("HSB Code is running");
+		if (y != 0) {
+			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
+				for (int i = 0; i < widthA && x + i < output.getWidth(); i++) {
+
+											
+					int pixelA = output.getRGB(x + i, y + j);
+					int redA = getRed(pixelA);
+					int blueA = getBlue(pixelA);
+					int greenA = getGreen(pixelA);
+
+					int pixelB = blockB.getRGB(i, j);
+					int redB = getRed(pixelB);
+					int blueB = getBlue(pixelB);
+					int greenB = getGreen(pixelB);
+					
+					
+					float[] hsbA = new float[3];
+					float[] hsbB = new float[3];	
+					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
+					Color.RGBtoHSB(redB, blueB, greenB, hsbB);				
+					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+					colorArray[j][i] = colorDifference;
+					//System.out.println("color value difference is "+ colorDifference);
+				}
+			}
+		}
+
+		if (x != 0) {
+			for (int j = 0; j < heightA && y + j < output.getHeight(); j++) {
+				for (int i = 0; i < overlapW && x + i < output.getWidth(); i++) {
+
+					int pixelA = output.getRGB(x + i, y + j);
+					int redA = getRed(pixelA);
+					int blueA = getBlue(pixelA);
+					int greenA = getGreen(pixelA);
+
+					int pixelB = blockB.getRGB(i, j);
+					int redB = getRed(pixelB);
+					int blueB = getBlue(pixelB);
+					int greenB = getGreen(pixelB);
+					
+					float[] hsbA = new float[3];
+					float[] hsbB = new float[3];	
+					Color.RGBtoHSB(redA, blueA, greenA, hsbA);
+					Color.RGBtoHSB(redB, blueB, greenB, hsbB);
+
+					//double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
+
+					colorArray[j][i] = colorDifference;
+				}
+			}
+		}
+//				System.out.println(colorArray.length);
+//				System.out.println(colorArray[0].length);
+//				System.out.println(Arrays.deepToString(colorArray));
+
+		if (y != 0) {
+			for (int s = 1; s < widthA; s++) {
+				for (int t = 0; t < overlapW; t++) {
+					if (t == 0) {
+						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]);
+					} else if (t == overlapW - 1) {
+						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t - 1][s - 1]);
+					} else {
+						colorArray[t][s] += Math.min(Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]),
+								colorArray[t - 1][s - 1]);
+					}
+
+				}
+			}
+		}
+//				System.out.println(Arrays.deepToString(colorArray));
+
+		if (x != 0) {
+			for (int t = 1; t < heightA; t++) {
+				for (int s = 0; s < overlapW; s++) {
+
+					if (s == 0) {
+						colorArray[t][s] += Math.min(colorArray[t - 1][s], colorArray[t - 1][s + 1]);
+					} else if (s == overlapW - 1) {
+						colorArray[t][s] += Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]);
+					} else {
+						colorArray[t][s] += Math.min(Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]),
+								colorArray[t - 1][s + 1]);
+					}
+
+				}
+			}
+//					System.out.println(Arrays.deepToString(colorArray));
+
+		}
+
+		int[] locatY = new int[widthA];
+		if (y != 0) {
+			for (int k = widthA - 1; k > 0; k--) {
+				double minimum = 0;
+				if (k == widthA - 1) {
+					for (int u = 0; u < overlapW; u++) {
+						if (u == 0 || colorArray[k][u] < minimum) {
+							minimum = colorArray[k][u];
+							locatY[k] = u;
+						}
+					}
+				}
+				if (locatY[k] == 0) {
+					double smalleast = 0;
+					for (int q = 0; q < 2; q++) {
+						if (smalleast == 0 || colorArray[k - 1][q] < smalleast) {
+							smalleast = colorArray[k - 1][q];
+							locatY[k - 1] = q;
+						}
+					}
+				} else if (locatY[k] == overlapW - 1) {
+					double minum = 0;
+					for (int r = overlapW - 2; r < overlapW; r++) {
+						if (minum == 0 || colorArray[k - 1][r] < minum) {
+							minum = colorArray[k - 1][r];
+							locatY[k - 1] = r;
+						}
+					}
+				} else {
+					double small = 0;
+					for (int d = locatY[k] - 1; d < locatY[k] + 2; d++) {
+						if (small == 0 || colorArray[k - 1][d] < small) {
+							small = colorArray[k - 1][d];
+							locatY[k - 1] = d;
+						}
+					}
+				}
+			}
+		}
+
+		int[] locatX = new int[heightA];
+		if (x != 0) {
+			for (int k = heightA - 1; k > 0; k--) {
+				double minimum = 0;
+				if (k == heightA - 1) {
+					for (int u = 0; u < overlapW; u++) {
+						if (u == 0 || colorArray[k][u] < minimum) {
+							minimum = colorArray[k][u];
+							locatX[k] = u;
+						}
+					}
+				}
+
+				if (locatX[k] == 0) {
+					double smalleast = 0;
+					for (int q = 0; q < 2; q++) {
+						if (smalleast == 0 || colorArray[k - 1][q] < smalleast) {
+							smalleast = colorArray[k - 1][q];
+							locatX[k - 1] = q;
+						}
+					}
+				} else if (locatX[k] == overlapW - 1) {
+					double minum = 0;
+					for (int r = overlapW - 2; r < overlapW; r++) {
+						if (minum == 0 || colorArray[k - 1][r] < minum) {
+							minum = colorArray[k - 1][r];
+							locatX[k - 1] = r;
+						}
+					}
+				} else {
+					double small = 0;
+					for (int d = locatX[k] - 1; d < locatX[k] + 2; d++) {
+						if (small == 0 || colorArray[k - 1][d] < small) {
+							small = colorArray[k - 1][d];
+							locatX[k - 1] = d;
+						}
+					}
+				}
+
+			}
+		}
+
+		for (int o = 0; o < heightA; o++) {
+			for (int b = 0; b < widthA; b++) {
+
+				if (o < locatY[b] && y + o < output.getHeight() && x + b < output.getWidth()) {
+					if (y != 0) {
+						cutB.setRGB(b, o, output.getRGB(x + b, y + o));
+					} else {
+						cutB.setRGB(b, o, blockB.getRGB(b, o));
+					}
+				} else {
+					if (x != 0) {
+						if (b < locatX[o] && x + b < output.getWidth() && y + o < output.getHeight()) {
+							cutB.setRGB(b, o, output.getRGB(x + b, y + o));
+						} else {
+							cutB.setRGB(b, o, blockB.getRGB(b, o));
+						}
+					} else {
+						cutB.setRGB(b, o, blockB.getRGB(b, o));
+					}
+				}
+			}
+		}
+		
+		for (int o = 0; o < colorArray.length; o++) {	
+			for (int b = 0; b < colorArray[o].length; b++) {
+				System.out.println("Height is "+ Integer.toString(o) + " and width is "+ Integer.toString(b)+ " color value difference is "+ Double.toString(colorArray[o][b]));
+			}
+		}
+		return cutB;
+	}	
+	
 	public double findBlockB(BufferedImage output, BufferedImage blockB, int x, int y) {
 
 		int widthA = blockB.getWidth();
@@ -290,213 +626,7 @@ class Week9 extends Frame{  //controlling class
 		return finalBlockB;
 	}
 
-	public BufferedImage minimumErrorBoundary1(BufferedImage output, BufferedImage blockB, BufferedImage greymap, int x, int y) {
 
-		BufferedImage cutB = new BufferedImage(blockB.getWidth(), blockB.getHeight(), blockB.getType());
-
-		int widthA = blockB.getWidth();
-		int heightA = blockB.getHeight();
-
-		int overlapW = widthA / 4;
-
-		int startingA = (widthA * 3) / 4;
-
-		int a = 0;
-		int locationX = 0;
-
-		int[][] colorArray = new int[heightA][widthA];
-
-		if (y != 0) {
-			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
-				for (int i = 0; i < widthA && x + i < output.getWidth(); i++) {
-					int pixelA = output.getRGB(x + i, y + j);
-					int redA = getRed(pixelA);
-					int blueA = getBlue(pixelA);
-					int greenA = getGreen(pixelA);
-
-					int pixelB = blockB.getRGB(i, j);
-					int redB = getRed(pixelB);
-					int blueB = getBlue(pixelB);
-					int greenB = getGreen(pixelB);
-
-					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)
-							+ Math.pow((greenA - greenB), 2);
-
-					colorArray[j][i] = (int) colorDifference;
-				}
-			}
-		}
-
-		if (x != 0) {
-			for (int j = 0; j < heightA && y + j < output.getHeight(); j++) {
-				for (int i = 0; i < overlapW && x + i < output.getWidth(); i++) {
-					int pixelA = output.getRGB(x + i, y + j);
-					int redA = getRed(pixelA);
-					int blueA = getBlue(pixelA);
-					int greenA = getGreen(pixelA);
-
-					int pixelB = blockB.getRGB(i, j);
-					int redB = getRed(pixelB);
-					int blueB = getBlue(pixelB);
-					int greenB = getGreen(pixelB);
-
-					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2)
-							+ Math.pow((greenA - greenB), 2);
-
-					colorArray[j][i] = (int) colorDifference;
-				}
-			}
-		}
-//				System.out.println(colorArray.length);
-//				System.out.println(colorArray[0].length);
-//				System.out.println(Arrays.deepToString(colorArray));
-
-		if (y != 0) {
-			for (int s = 1; s < widthA; s++) {
-				for (int t = 0; t < overlapW; t++) {
-					if (t == 0) {
-						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]);
-					} else if (t == overlapW - 1) {
-						colorArray[t][s] += Math.min(colorArray[t][s - 1], colorArray[t - 1][s - 1]);
-					} else {
-						colorArray[t][s] += Math.min(Math.min(colorArray[t][s - 1], colorArray[t + 1][s - 1]),
-								colorArray[t - 1][s - 1]);
-					}
-
-				}
-			}
-		}
-//				System.out.println(Arrays.deepToString(colorArray));
-
-		if (x != 0) {
-			for (int t = 1; t < heightA; t++) {
-				for (int s = 0; s < overlapW; s++) {
-
-					if (s == 0) {
-						colorArray[t][s] += Math.min(colorArray[t - 1][s], colorArray[t - 1][s + 1]);
-					} else if (s == overlapW - 1) {
-						colorArray[t][s] += Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]);
-					} else {
-						colorArray[t][s] += Math.min(Math.min(colorArray[t - 1][s - 1], colorArray[t - 1][s]),
-								colorArray[t - 1][s + 1]);
-					}
-
-				}
-			}
-//					System.out.println(Arrays.deepToString(colorArray));
-
-		}
-
-		int[] locatY = new int[widthA];
-		if (y != 0) {
-			for (int k = widthA - 1; k > 0; k--) {
-				int minimum = 0;
-				if (k == widthA - 1) {
-					for (int u = 0; u < overlapW; u++) {
-						if (u == 0 || colorArray[k][u] < minimum) {
-							minimum = colorArray[k][u];
-							locatY[k] = u;
-						}
-					}
-				}
-				if (locatY[k] == 0) {
-					int smalleast = 0;
-					for (int q = 0; q < 2; q++) {
-						if (smalleast == 0 || colorArray[k - 1][q] < smalleast) {
-							smalleast = colorArray[k - 1][q];
-							locatY[k - 1] = q;
-						}
-					}
-				} else if (locatY[k] == overlapW - 1) {
-					int minum = 0;
-					for (int r = overlapW - 2; r < overlapW; r++) {
-						if (minum == 0 || colorArray[k - 1][r] < minum) {
-							minum = colorArray[k - 1][r];
-							locatY[k - 1] = r;
-						}
-					}
-				} else {
-					int small = 0;
-					for (int d = locatY[k] - 1; d < locatY[k] + 2; d++) {
-						if (small == 0 || colorArray[k - 1][d] < small) {
-							small = colorArray[k - 1][d];
-							locatY[k - 1] = d;
-						}
-					}
-				}
-			}
-		}
-
-		int[] locatX = new int[heightA];
-		if (x != 0) {
-			for (int k = heightA - 1; k > 0; k--) {
-				int minimum = 0;
-				if (k == heightA - 1) {
-					for (int u = 0; u < overlapW; u++) {
-						if (u == 0 || colorArray[k][u] < minimum) {
-							minimum = colorArray[k][u];
-							locatX[k] = u;
-						}
-					}
-				}
-
-				if (locatX[k] == 0) {
-					int smalleast = 0;
-					for (int q = 0; q < 2; q++) {
-						if (smalleast == 0 || colorArray[k - 1][q] < smalleast) {
-							smalleast = colorArray[k - 1][q];
-							locatX[k - 1] = q;
-						}
-					}
-				} else if (locatX[k] == overlapW - 1) {
-					int minum = 0;
-					for (int r = overlapW - 2; r < overlapW; r++) {
-						if (minum == 0 || colorArray[k - 1][r] < minum) {
-							minum = colorArray[k - 1][r];
-							locatX[k - 1] = r;
-						}
-					}
-				} else {
-					int small = 0;
-					for (int d = locatX[k] - 1; d < locatX[k] + 2; d++) {
-						if (small == 0 || colorArray[k - 1][d] < small) {
-							small = colorArray[k - 1][d];
-							locatX[k - 1] = d;
-						}
-					}
-				}
-
-			}
-		}
-
-		for (int o = 0; o < heightA; o++) {
-			for (int b = 0; b < widthA; b++) {
-
-				if (o < locatY[b] && y + o < output.getHeight() && x + b < output.getWidth()) {
-					if (y != 0) {
-						cutB.setRGB(b, o, output.getRGB(x + b, y + o));
-					} else {
-						cutB.setRGB(b, o, blockB.getRGB(b, o));
-					}
-				} else {
-					if (x != 0) {
-						if (b < locatX[o] && x + b < output.getWidth() && y + o < output.getHeight()) {
-							cutB.setRGB(b, o, output.getRGB(x + b, y + o));
-						} else {
-							cutB.setRGB(b, o, blockB.getRGB(b, o));
-						}
-					} else {
-						cutB.setRGB(b, o, blockB.getRGB(b, o));
-					}
-				}
-			}
-		}
-		return cutB;
-	}	
-	
-	
-	
-	
 	
 	public BufferedImage minimumErrorBoundary(BufferedImage output, BufferedImage blockB, int x, int y) {
 
@@ -699,6 +829,7 @@ class Week9 extends Frame{  //controlling class
 				}
 			}
 		}
+		
 		return cutB;
 	}
 
@@ -796,13 +927,13 @@ class Week9 extends Frame{  //controlling class
 		g.drawString("1.Texture image", 25, 40);
 		
 		//Quilt1's drawing
-		g.drawString("1.a. Simple quilt", 25 * 2 + texture.getWidth(), 40);
+		//g.drawString("1.a. Simple quilt", 25 * 2 + texture.getWidth(), 40);
 		
 		//Quilt 2's drawing
-		g.drawString("1.b. Overlap quilt", 25 * 3 + texture.getWidth() + quilt.getWidth(), 40);
+		//g.drawString("1.b. Overlap quilt", 25 * 3 + texture.getWidth() + quilt.getWidth(), 40);
 		
 		//Quilt 3's Drawing
-		g.drawString("1.c. Quilt with minimum error boundary cut", 25 * 4 + texture.getWidth() + quilt.getWidth() * 2, 40);
+		//g.drawString("1.c. Quilt with minimum error boundary cut", 25 * 4 + texture.getWidth() + quilt.getWidth() * 2, 40);
 
 		g.drawString("2. Target image", 25, 50 * 2 + quilt.getHeight() - 10);
 		g.drawString("2.a. Grayscale image", 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight() - 10);
@@ -813,8 +944,8 @@ class Week9 extends Frame{  //controlling class
 
 		g.drawImage(target, 25, 50 * 2 + quilt.getHeight(), target.getWidth(), target.getHeight(), this);
 
-		g.drawImage(quilt1, 25 * 2 + texture.getWidth(), 50, quilt1.getWidth(), quilt1.getHeight(), this);
-		
+		//g.drawImage(quilt1, 25 * 2 + texture.getWidth(), 50, quilt1.getWidth(), quilt1.getHeight(), this);
+		/*
 		try {
 
 			g.drawImage(quilt2, 25 * 3 + texture.getWidth() + quilt.getWidth(), 50, quilt.getWidth(), quilt2.getHeight(), this);
@@ -829,12 +960,13 @@ class Week9 extends Frame{  //controlling class
 			System.out.println("Cannot draw quilt 3");
 		}
 
-
+		*/
 		g.drawImage(target_gray, 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight(), target.getWidth(), target.getHeight(), this);
 
 		try {
 
-			g.drawImage(myOptImage, 25 * 4 + target.getWidth() * 3, 50 * 2 + quilt.getHeight(), myOptImage.getWidth(), myOptImage.getHeight(), this);
+			g.drawImage(myOptImage, 25 * 3 + target.getWidth() * 2, 50 * 2 + quilt.getHeight(), myOptImage.getWidth(), myOptImage.getHeight(), this);
+			//g.drawImage(myOptImage1, 25 * 4 + jesse.getWidth() * 2, 50 * 2 + quilt.getHeight(), myOptImage1.getWidth(), myOptImage1.getHeight(), this);
 		} catch (Exception e) {
 			System.out.println("Cannot draw myOptImage");
 		}
