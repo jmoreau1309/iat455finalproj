@@ -207,22 +207,22 @@ button:focus { outline: none; }
     font-weight: 400;
 }
 
-/* footer */
-
-.tm-footer {
-	position: absolute;
-	bottom: 0;
-	left: 0;	
-}
-
-.tm-footer {
-    width: 100%;
-    color: white;
-    z-index: 1001;
-    padding: 0 11px 12px;
-}
-
-.cd-hero-slider p:last-child { margin-bottom: 0; }
+/* footer */ 
+ 
+.tm-footer { 
+	position: absolute; 
+	bottom: 0; 
+	left: 0;	 
+} 
+ 
+.tm-footer { 
+    width: 100%; 
+    color: white; 
+    z-index: 1001; 
+    padding: 0 11px 12px; 
+} 
+ 
+.cd-hero-slider p:last-child { margin-bottom: 0; } 
 
 /* Contact */
 .tm-contact-page {
