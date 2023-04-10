@@ -20,9 +20,6 @@ import javax.imageio.ImageIO;
 class Week9 extends Frame{  //controlling class
 	
 	
-	BufferedImage jesse; 
-	BufferedImage synth;
-	
 	BufferedImage texture;
 	BufferedImage target;
 
