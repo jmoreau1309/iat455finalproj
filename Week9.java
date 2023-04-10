@@ -37,14 +37,18 @@ class Week9 extends Frame{  //controlling class
 
 	BufferedImage quilt;
 	BufferedImage quilt1, quilt2, quilt3;
+
+	
 	BufferedImage target_gray,texture_gray;
 	//Original was 2
-	int percent = 3;
+	//Liked how big the blocks were with 7
+	int percent = 15;
 	//Original was 4
 	int overlapPercent = 4;
 	//Alpha is tolerance between correlation and color, basically which one is favored more than the other
 	//Max for Alpha is 1 and min is 0
 	double alpha = 0.6;
+	
 
 	BufferedImage myOptImage, myOptImage1;
 
@@ -60,37 +64,32 @@ class Week9 extends Frame{  //controlling class
 			//carImage is used to width
 			carImage = ImageIO.read(new File("images/JesseS5.jpg"));
 
-			texture = ImageIO.read(new File("images/t13.png"));
-			target = ImageIO.read(new File("images/Cerone_White_44.png"));
-
+			texture = ImageIO.read(new File("images/t12.png"));
+			//target = ImageIO.read(new File("images/Cerone_White_44.png"));
+			//target = ImageIO.read(new File("images/Cerone_White_100pix.png"));
+			target = ImageIO.read(new File("images/Mattpog_Smol.png"));
 
 		} catch (Exception e) {
 			System.out.println("Cannot load the provided image");
 		}
 		this.setTitle("IAT 455 Final Project");
 		this.setVisible(true);
-
+		
 		// constructor
 		// Get an image from the specified file in the current directory on the
 		// local hard disk.
 		
-		
-		width = carImage.getWidth();//
-		height = carImage.getHeight();//
+		width = carImage.getWidth()+700;//
+		height = carImage.getHeight()+700;//
 
 		target_gray = rgb2gray(target);
 		texture_gray = rgb2gray(texture);
 
 		quilt = new BufferedImage(texture.getWidth() * 2, texture.getWidth() * 2, texture.getType());
-
-		quilt2 = quilt3(texture, target, texture_gray, target_gray , true);
-		
-		//Left overs from original code
-		//quilt1 = quilt1(texture, quilt, false);
-		//quilt2 = quilt1(texture, quilt, true);
-		//quilt3 = quilt(texture, quilt);
 		
 		myOptImage = quilt2(texture, target, texture_gray, target_gray);
+		
+		//testQuilt1 = half(myOptImage);
 		//myOptImage1 = quilt2(texture, jesse, rgb2gray(jesse));
 		//myOptImage = quilt(texture, target);
 
@@ -122,6 +121,7 @@ class Week9 extends Frame{  //controlling class
 		}
 		return result;
 	}
+	
 	
 	//Left over code from original
 	public BufferedImage quilt(BufferedImage input, BufferedImage output) {
@@ -220,7 +220,9 @@ class Week9 extends Frame{  //controlling class
 		double colorCost = 0;
 		//correspondence between source image cost
 		double corCost = 0;
-		
+		double corTotalC= 0;
+		double corTotalD = 0;
+		BufferedImage monoBlockB = rgb2gray(blockB);
 
 		if (y != 0) {
 			for (int j = 0; j < overlapW && y + j < output.getHeight(); j++) {
@@ -235,7 +237,8 @@ class Week9 extends Frame{  //controlling class
 					int blueB = getBlue(pixelB);
 					int greenB = getGreen(pixelB);
 					
-					int pixelC = greyMapTex.getRGB(i, j);
+					//int pixelC = greyMapTex.getRGB(i, j);
+					int pixelC = monoBlockB.getRGB(i, j);
 					int redC = getRed(pixelC);
 					int blueC = getBlue(pixelC);
 					int greenC = getGreen(pixelC);
@@ -254,17 +257,22 @@ class Week9 extends Frame{  //controlling class
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
 					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					
+					
+					
 					//Was using HSB before but wasn't sure if it was working
 					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
-					//double correspondenceDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
+					//double corDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
 					
 					//Color difference is how well it matches with adjacent pixels
 					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					//double colorDifference = 0;
 					//corDifference is how well it matches with the luminance of the target greymap with the texture greymap
-					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+					//double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
 					
 					colorCost += colorDifference;
-					corCost += corDifference;
+					//corCost += corDifference;
+					corTotalC = corTotalC + redC;
+					corTotalD = corTotalD + redD;
 				}
 			}
 		}
@@ -283,7 +291,8 @@ class Week9 extends Frame{  //controlling class
 					int greenB = getGreen(pixelB);
 					
 					//Texture Greymap
-					int pixelC = greyMapTex.getRGB(i, j);
+					//int pixelC = greyMapTex.getRGB(i, j);
+					int pixelC = monoBlockB.getRGB(i, j);
 					int redC = getRed(pixelC);
 					int blueC = getBlue(pixelC);
 					int greenC = getGreen(pixelC);
@@ -307,20 +316,29 @@ class Week9 extends Frame{  //controlling class
 					
 					//Was using HSB before but wasn't sure if it was working
 					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
-					//double correspondenceDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
+					//double corDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
 					
 					//Color difference is how well it matches with adjacent pixels
 					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
+					//double colorDifference = 0;
 					//corDifference is how well it matches with the luminance of the target greymap with the texture greymap
-					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+					//double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+
+					corTotalC = corTotalC + redC;
+					corTotalD = corTotalD + redD;
 
 					colorCost += colorDifference;
-					corCost += corDifference;
+					//corCost += corDifference;
 				}
 			}
 		}
+		corCost = corTotalC - corTotalD;
+		corCost = Math.pow(corCost, 2);
+		//System.out.println(corCost);
 		//True cost is ripped from the Matlab code, combines the values of the corCost and colorcost
-		double trueCost = ((colorCost*alpha)+(corCost* (1-alpha)));
+		double alphacon = 1-alpha;
+		double trueCost = ((colorCost*alpha)+(corCost*alphacon));
+		//System.out.println(trueCost);
 		return trueCost;
 	}	
 	
@@ -328,19 +346,22 @@ class Week9 extends Frame{  //controlling class
 
 		BufferedImage blockB = smallPatch(input);
 		BufferedImage finalBlockB = blockB;
-
+		//int replaceCounter = 0;
 		double originCost = findBlockB1(output, rgb2gray(blockB), greyMapTex, greyMapTar ,x, y);
 		//Determines best block to use based on truecost from findBlockB1
 		for (int t = 0; t < 200; t++) {
 			blockB = smallPatch(input);
 	
 			double iterativeCost = findBlockB1(output, rgb2gray(blockB), greyMapTex, greyMapTar, x, y);	
-
+			//System.out.println("Iterative cost is: "+ Double.toString(iterativeCost)+ " Origin cost is: "+ Double.toString(originCost));
 			if (iterativeCost < originCost) {
 				originCost = iterativeCost;
 				finalBlockB = blockB;
+				//replaceCounter++;
 			}
 		}
+		//System.out.println("Replace counter went to: "+ Integer.toString(replaceCounter));
+		
 		return finalBlockB;
 	}
 	//Modified minimumErrorBoundary1 Code to perform boundary cuts, for sake of texture transfer should account for color relation to adjacent placed blocks
@@ -395,7 +416,10 @@ class Week9 extends Frame{  //controlling class
 					Color.RGBtoHSB(redC, blueC, greenC, hsbC);
 					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
-					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+					//double colorDifference = 0;
+					double corDifference = Math.pow((redC - redD), 2);
+					//double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+
 					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
 					//double corDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
 					
@@ -443,7 +467,9 @@ class Week9 extends Frame{  //controlling class
 					Color.RGBtoHSB(redD, blueD, greenD, hsbD);
 					
 					double colorDifference = Math.pow((redA - redB), 2) + Math.pow((blueA - blueB), 2) + Math.pow((greenA - greenB), 2);
-					double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+					//double colorDifference = 0;
+					//double corDifference = Math.pow((redC - redD), 2) + Math.pow((blueC - blueD), 2) + Math.pow((greenC - greenD), 2);
+					double corDifference = Math.pow((redC - redD), 2);
 					//double colorDifference = Math.pow((hsbA[2] - hsbB[2]), 2);
 					//double corDifference = Math.pow((hsbC[2] - hsbD[2]), 2);
 					
@@ -457,7 +483,7 @@ class Week9 extends Frame{  //controlling class
 //				System.out.print(colorArray.length+" , ");
 //				System.out.println(colorArray[0].length);
 //				System.out.println(Arrays.deepToString(colorArray));
-
+		
 		if (y != 0) {
 			for (int s = 1; s < widthA; s++) {
 				for (int t = 0; t < overlapW; t++) {
@@ -497,7 +523,7 @@ class Week9 extends Frame{  //controlling class
 //					System.out.println(Arrays.deepToString(colorArray));
 
 		}
-
+		
 		int[] locatY = new int[widthA];
 		if (y != 0) {
 			for (int k = widthA - 1; k > 0; k--) {
@@ -545,7 +571,7 @@ class Week9 extends Frame{  //controlling class
 				}
 			}
 		}
-
+		
 		int[] locatX = new int[heightA];
 		if (x != 0) {
 			for (int k = heightA - 1; k > 0; k--) {
@@ -595,7 +621,7 @@ class Week9 extends Frame{  //controlling class
 
 			}
 		}
-
+		
 		for (int o = 0; o < heightA; o++) {
 			for (int b = 0; b < widthA; b++) {
 
@@ -618,6 +644,11 @@ class Week9 extends Frame{  //controlling class
 				}
 			}
 		}
+		
+		
+		
+		
+		
 		/*
 		for (int o = 0; o < colorArray.length; o++) {	
 			for (int b = 0; b < colorArray[o].length; b++) {
@@ -628,51 +659,7 @@ class Week9 extends Frame{  //controlling class
 		return cutB;
 	}	
 	
-	
-	//Modified Quilting Code to perform overlaps, if neither image is capable of producing a rough image of the target image means that problem is not directly tied to boundary cutting
-	public BufferedImage quilt3(BufferedImage input, BufferedImage output, BufferedImage greyMapTex, BufferedImage greyMapTar , Boolean overlap) {
-		int outW = output.getWidth();
-		int outH = output.getHeight();
 
-		int inpW = input.getWidth();
-		int inpH = input.getHeight();
-
-		int smlW = inpW / percent;
-		int smlH = inpH / percent;
-
-		int overlapW = 0;
-		int overlapH = 0;
-		if (overlap) {
-			overlapW = smlW / overlapPercent;
-			overlapH = smlH / overlapPercent;
-		}
-
-		BufferedImage smlBlockA = smallPatch(input);
-		BufferedImage result = new BufferedImage(outW, outH, output.getType());
-		for (int j = 0; j < result.getHeight(); j += (smlH - overlapH)) {
-			for (int i = 0; i < result.getWidth(); i += (smlW - overlapW)) {
-
-				if (overlap) {
-					if (i == 0 && j == 0) {
-						smlBlockA = smallPatch(input);
-					} else {
-						smlBlockA = returnB1(result, input, greyMapTex, greyMapTar , i, j);
-					}
-				} else {
-					smlBlockA = smallPatch(input);
-				}
-
-				for (int a = 0; a < smlW && i + a < result.getWidth(); a++) {
-					for (int b = 0; b < smlH && j + b < result.getHeight(); b++) {
-						result.setRGB(i + a, j + b, smlBlockA.getRGB(a, b));
-					}
-				}
-
-			}
-		}
-		return result;
-	}
-	
 	
 	//Leftover from original code,
 	public double findBlockB(BufferedImage output, BufferedImage blockB, int x, int y) {
@@ -1007,9 +994,13 @@ class Week9 extends Frame{  //controlling class
 				// Remove the alpha component
 				Color c = new Color(bi.getRGB(width, height) & 0x00ffffff);
 				// Normalize
-				int newRed = (int) (0.309 * c.getRed());
-				int newGreen = (int) (0.609 * c.getGreen());
-				int newBlue = (int) (0.082 * c.getBlue());
+				//int newRed = (int) (0.309 * c.getRed());
+				//int newGreen = (int) (0.609 * c.getGreen());
+				//int newBlue = (int) (0.082 * c.getBlue());
+				
+				int newRed = (int) (0.2989 * c.getRed());
+				int newGreen = (int) (0.5870 * c.getGreen());
+				int newBlue = (int) (0.1140 * c.getBlue());
 				int roOffset = newRed + newGreen + newBlue;
 				converted.setRGB(width, height, new Color(roOffset, roOffset, roOffset).getRGB());
 			}
@@ -1039,10 +1030,11 @@ class Week9 extends Frame{  //controlling class
 		int w = width / 5;
 		int h = height / 5;
 
-		this.setSize(1280, 800);
+		this.setSize(1920, 1080);
 
 		g.setColor(Color.BLACK);
 		Font f1 = new Font("Helvetica", Font.PLAIN, 13);
+		Font f2 = new Font("Helvetica", Font.PLAIN, 6);
 		g.setFont(f1);
 
 		g.drawString("1.Texture image", 25, 45);
@@ -1089,11 +1081,12 @@ class Week9 extends Frame{  //controlling class
 		try {
 
 			g.drawImage(myOptImage, 25 * 3 + target.getWidth() * 2, 50 * 2 + quilt.getHeight()+40, myOptImage.getWidth(), myOptImage.getHeight(), this);
+
 			//g.drawImage(myOptImage1, 25 * 4 + jesse.getWidth() * 2, 50 * 2 + quilt.getHeight(), myOptImage1.getWidth(), myOptImage1.getHeight(), this);
 		} catch (Exception e) {
 			System.out.println("Cannot draw myOptImage");
 		}
-	    
+		
 
 	}
   public static void main(String[] args){
