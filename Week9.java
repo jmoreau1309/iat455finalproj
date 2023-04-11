@@ -60,8 +60,8 @@ class Week9 extends Frame{  //controlling class
 		target_gray = rgb2gray(target);
 		texture_gray = rgb2gray(texture);
 
-
-		quilt = new BufferedImage(target.getWidth() , target.getWidth(), texture.getType());
+		quilt = new BufferedImage((int) (target.getWidth()/1.5) ,(int) (target.getWidth()/1.5), texture.getType());
+		quilt = new BufferedImage(target.getWidth() , target.getHeight(), texture.getType());
 		
 		myOptImage = quilt2(texture, target, texture_gray, target_gray);
 		
@@ -642,19 +642,19 @@ class Week9 extends Frame{  //controlling class
 		
 
 		g.drawString("2. Target image", 25, 50 * 2 + quilt.getHeight()+30 );
-		g.drawString("2.a. Grayscale image", 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight()+30);
-		g.drawString("2.b. Texture transfer image", 25 * 3 + target.getWidth() * 2, 50 * 2 + quilt.getHeight()+30);
+		g.drawString("2.b. Texture transfer image", 25 * 2 + target.getWidth(), 50 * 2 + quilt.getHeight()+30);
+
 
 		
 		g.drawImage(texture, 25, 50, texture.getWidth(), texture.getHeight(), this);
 
-		g.drawImage(target, 25, 50 * 2 + quilt.getHeight()+40, target.getWidth(), target.getHeight(), this);
+		g.drawImage(target, 25, 50 * 2 + target.getHeight()+40, target.getWidth()/2, target.getHeight()/2, this);
 
 
 		//Reason for try and catch is beacause java tries to draw these before they are even finished being made, this prevents massive amounts of error messages
 		try {
 
-			g.drawImage(myOptImage, 25 * 2 + target.getWidth() * 2, 50 * 2 + quilt.getHeight()+40, myOptImage.getWidth(), myOptImage.getHeight(), this);
+			g.drawImage(myOptImage, 25 * 2 + target.getWidth() * 1, 50 * 2 + quilt.getHeight()+40, myOptImage.getWidth()/2, myOptImage.getHeight()/2, this);
 
 		} catch (Exception e) {
 			System.out.println("Cannot draw myOptImage");
