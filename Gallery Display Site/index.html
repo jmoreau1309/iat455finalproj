@@ -163,99 +163,46 @@
                         <h1 class="tm-figure-title">Upload your Image</h1>
                         <form action="/action_page.php">
                             <input type="file" id="myFile" name="filename" accept="image/png, image/gif, image/jpeg">
-                        </form>
+                          
+                            <!--step 2 user selects art style-->
+                            <h1 class="tm-figure-title">Select Art Style</h1>
 
-                         <!--step 2 user selects art style-->
-                        <h1 class="tm-figure-title">Select Art Style</h1>
+                            <label class="container">Starry Night
+                            <input type="radio" name="artworks" checked>
+                            <span class="check"></span>
+                            </label>
+                            <label class="container">The Kiss
+                              <input type="radio" name="artworks">
+                              <span class="check"></span>
+                            </label>
+                            <label class="container">Composition 8
+                              <input type="radio" name="artworks">
+                              <span class="check"></span>
+                            </label>
+                            <label class="container">Guernica
+                              <input type="radio" name="artworks">
+                              <span class="check"></span>
+                            </label>
+                            <label class="container">The Persistance of Memory
+                            <input type="radio" name="artworks" checked>
+                            <span class="check"></span>
+                            </label>
+                            <label class="container">The Scream
+                              <input type="radio" name="artworks">
+                              <span class="check"></span>
+                            </label>
+                            <label class="container">Three Musicians
+                              <input type="radio" name="artworks">
+                              <span class="check"></span>
+                            </label>
+                            <label class="container">Water Lilies
+                              <input type="radio" name="artworks">
+                              <span class="check"></span>
+                            </label>
+                            <input type="submit" value="Submit">
+                        </form>
                     </div>
-                    </div>                   
-                        <div class="container-fluid js-tm-page-content" data-page-no="1" data-page-type="gallery">
-                            <div class="tm-img-gallery-container">
-                                <div class="tm-img-gallery gallery-one">
-                                <!-- Gallery One pop up connected with JS code below -->
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/starrynight.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>Starry Night </strong></span></h2>
-                                                <p class="tm-figure-description">An oil-on-canvas painting by the Dutch Post-Impressionist painter Vincent van Gogh. Painted in June 1889</p>
-                                                <a href="img/starrynight.jpg">View more</a>
-                                            </figcaption>           
-                                        </figure>
-                                    </div>
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/kiss.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>The Kiss </strong></span></h2>
-                                                <p class="tm-figure-description">An oil-on-canvas painting with added gold leaf, silver and platinum by the Austrian Symbolist painter Gustav Klimt. It was painted at some point in 1907 and 1908</p>
-                                                <a href="img/kiss.jpg">View more</a>
-                                            </figcaption>
-                                        </figure>
-                                    </div>
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/comp 8.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>Composition 8 </strong></span></h2>
-                                                <p class="tm-figure-description">An oil-on-canvas painting by the Russian, Bauhaus inspired artist Vasily Kandinsky. Painted in 1923</p>
-                                                <a href="img/comp 8.jpg">View more</a>
-                                            </figcaption>           
-                                        </figure>
-                                    </div>
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/guernica.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>Guernica </strong></span></h2>
-                                                <p class="tm-figure-description">A large 1937 oil painting by Spanish artist Pablo Picasso.</p>
-                                                <a href="img/guernica.jpg">View more</a>
-                                            </figcaption>           
-                                        </figure>
-                                    </div>  
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/persistance of memory.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>The Persistance of Memory</strong></span></h2>
-                                                <p class="tm-figure-description">A 1931 painting by artist Salvador Dalí and one of the most recognizable works of Surrealism.</p>
-                                                <a href="img/persistance of memory.jpg">View more</a>
-                                            </figcaption>           
-                                        </figure>
-                                    </div>
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/scream.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>The Scream </strong></span></h2>
-                                                <p class="tm-figure-description">a composition created by Norwegian artist Edvard Munch in 1893</p>
-                                                <a href="img/scream.jpg">View more</a>
-                                            </figcaption>
-                                        </figure>
-                                    </div>
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/three musicians.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>Three Musicians </strong></span></h2>
-                                                <p class="tm-figure-description">A large painting measuring more than 2 meters wide and high. Picasso painted this piece in the summer of 1921.</p>
-                                                <a href="img/three musicians.jpg">View more</a>
-                                            </figcaption>           
-                                        </figure>
-                                    </div>
-                                    <div class="grid-item">
-                                        <figure class="effect-sadie">
-                                            <img src="img/water lilies.jpg" alt="Image" class="img-fluid tm-img">
-                                            <figcaption>
-                                                <h2 class="tm-figure-title"><span><strong>Water Lilies </strong></span></h2>
-                                                <p class="tm-figure-description">a 1919 painting by impressionist Claude Monet, one of his Water Lilies series.</p>
-                                                <a href="img/water lilies.jpg">View more</a>
-                                            </figcaption>           
-                                        </figure>
-                                    </div>                                                         
-                                </div>                                 
-                            </div>
-                        </div>                                                    
+                    </div>                                            
                     </div>                    
                 </li>
 
