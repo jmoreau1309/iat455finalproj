@@ -40,7 +40,7 @@ a:focus {
 	padding-right: 0;
 }
 
-.cd-hero-slider .cd-full-width { padding-top: 0; }
+.cd-hero-slider .cd-full-width { padding-top: 20; }
 
 .cd-slider-nav {
 	position: absolute;
@@ -195,6 +195,7 @@ button:focus { outline: none; }
 }
 
 .cd-full-width .container-fluid.tm-page-width { 
+	padding-top: 20px;
 	max-width: none;
 	margin-left: auto;
 	margin-right: auto;
@@ -220,6 +221,7 @@ button:focus { outline: none; }
     color: white; 
     z-index: 1001; 
     padding: 0 11px 12px; 
+    padding-top: 100px;
 } 
  
 .cd-hero-slider p:last-child { margin-bottom: 0; } 
@@ -248,7 +250,7 @@ button:focus { outline: none; }
 .form-control::-moz-placeholder { color: #000000; } /* Firefox 19+ */
 .form-control:-ms-input-placeholder { color: #000000; }
 
-.form-group { margin-bottom: 1.5rem; }
+.form-group { margin-bottom: 5rem; }
 
 .tm-submit-btn {
 	background-color: #0066CC;
@@ -618,12 +620,16 @@ figure.effect-sadie:hover p {
 	.cd-full-width .container-fluid {
 		padding-left: 0;
 		padding-right: 0;
+		padding-top: 10px;
+		padding-bottom: 20px;
 	}
 
 	.cd-full-width .container-fluid.tm-page-pad,
 	.cd-full-width .container-fluid.tm-page-pad {
 		padding-left: 10px;
 		padding-right: 10px;
+		padding-top: 10px;
+		padding-bottom: 20px;
 	}
 
 	.cd-full-width .container-fluid.tm-page-width {
@@ -642,6 +648,8 @@ figure.effect-sadie:hover p {
 	.cd-full-width .container-fluid.tm-page-width {
 		padding-left: 30px;
 		padding-right: 30px;
+		padding-top: 10px;
+		padding-bottom: 20px;
 	}
 	.tm-page-width {
 		padding-left: 30px;
@@ -669,6 +677,8 @@ figure.effect-sadie:hover p {
 	.cd-full-width .container-fluid {
 		padding-left: 0;
 		padding-right: 0;
+		padding-top: 10px;
+		padding-bottom: 20px;
 	}
 
 	.tm-brand-icon { 
@@ -683,6 +693,8 @@ figure.effect-sadie:hover p {
 	.cd-full-width .container-fluid.tm-page-width { 
 		padding-left: 0; 
 		padding-right: 0;
+		padding-top: 10px;
+		padding-bottom: 20px;
 	}	
 }
 
